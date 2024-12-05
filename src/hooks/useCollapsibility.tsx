@@ -92,6 +92,11 @@ export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: 
           collapsedKeys.current.length > 0 && 
           entry.contentRect.width > cachedParentWidth.current
         ) {
+          // TODO: if dramatic change in width of the window/parentElement, 
+          // it will only fire once, and not display all the action icons it can
+          // because of the debounce…
+          // throttling solve the issue, but creates another one the other way around… 
+
           // Pick the key of the menu item we can migrate from collapsed
           const key = collapsedKeys.current[0];
           // Remove from menu items and add to action icons
