@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 
 import { RSPrefs } from "@/preferences";
 
@@ -13,6 +13,7 @@ import { ActionComponentVariant, ActionKeys, ActionVisibility } from "@/componen
 import debounce from "debounce";
 
 export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: Links) => {
+  const observer = useRef<ResizeObserver | null>(null);
   const cachedParentWidth = useRef<number>(0);
 
   const collapsibleKeys = useRef<ActionKeys[]>([]);
@@ -64,7 +65,10 @@ export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: 
   }, [target]);
   
   const triage = debounce((entries: ResizeObserverEntry[]) => {
-    if (target) {
+    if (target && target.parentElement) {
+      // Pausing while altering the target
+      observer.current && observer.current.unobserve(target.parentElement);
+
       for (const entry of entries) {
         // Trying to protect against weird reports
         if (target.scrollWidth < target.offsetWidth) return;
@@ -107,21 +111,24 @@ export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: 
         // Array from map has to be reversed to keep prefs order since they are added from last collapsible
         setMenuItems([...menuItemsMap.current.values()].reverse());
       };
-    }       
-  }, 250);
 
-  useEffect(() => {
+      // Resuming observer
+      observer.current && observer.current.observe(target.parentElement);
+    }
+  }, 50);
+
+  useLayoutEffect(() => {
     if (!target || !target.parentElement) return;
     
     setup();
     
-    const observer = new ResizeObserver(triage);
+    observer.current = new ResizeObserver(triage);
     // We can’t observe the target itself, as it will create an infinite loop
     // since adding and removing elements inside it will trigger a resize.
-    observer.observe(target.parentElement);
+    observer.current.observe(target.parentElement);
 
     return () => {
-      observer.disconnect();
+      observer.current && observer.current.disconnect();
     }
   }, [target]);
 
