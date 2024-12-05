@@ -10,6 +10,8 @@ import { SettingsAction } from "@/components/SettingsAction";
 import { TocAction } from "@/components/TocAction";
 import { ActionComponentVariant, ActionKeys, ActionVisibility } from "@/components/Templates/ActionComponent";
 
+import debounce from "debounce";
+
 export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: Links) => {
   const resizingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -61,11 +63,8 @@ export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: 
     }
   }, [target]);
   
-  const triage = useCallback(() => {
-    if (target) {
-      resizingTimer.current && clearTimeout(resizingTimer.current);
-      resizingTimer.current = setTimeout(() => {
-        
+  const triage = debounce(() => {
+    if (target) {        
         // Trying to protect against weird reports
         if (target.scrollWidth < target.offsetWidth) return;
 
@@ -96,9 +95,8 @@ export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: 
         setActionIcons([...actionIconsMap.current.values()]);
         // Array from map has to be reversed to keep prefs order since they are added from last collapsible
         setMenuItems([...menuItemsMap.current.values()].reverse());
-      }, 20);
-    }
-  }, [target]);
+      };
+  }, 250);
 
   useEffect(() => {
     if (!target || !target.parentElement) return;
