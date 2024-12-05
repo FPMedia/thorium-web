@@ -128,7 +128,7 @@ export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: 
       // Resuming observer
       observer.current && observer.current.observe(target.parentElement);
     }
-  }, 20);
+  }, 50);
 
   useLayoutEffect(() => {
     if (!target || !target.parentElement) return;
