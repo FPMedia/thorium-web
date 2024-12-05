@@ -36,6 +36,7 @@ export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: 
     [ActionKeys.toc]: <TocAction key={ ActionKeys.toc } variant={ ActionComponentVariant.menu } toc={ toc } />
   };
 
+  // Dispatch elements based on preferences
   const setup = useCallback(() => {
     if (target) {
       RSPrefs.actions.displayOrder.map((key) => {
@@ -64,22 +65,36 @@ export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: 
     if (target) {
       resizingTimer.current && clearTimeout(resizingTimer.current);
       resizingTimer.current = setTimeout(() => {
+        
+        // Trying to protect against weird reports
+        if (target.scrollWidth < target.offsetWidth) return;
+
         if (isOverflowing() && collapsibleKeys.current.length > 0) {
+          // Pick the key of the action icon we can migrate from collapsible
           const key = collapsibleKeys.current[collapsibleKeys.current.length - 1];
+          // Add to menu items and remove from action icons
           menuItemsMap.current.set(key, MenuItemEls[key]);
           actionIconsMap.current.delete(key);
+          // Update collapsible/collapsed
+          // Remove last item of collapsible
           collapsibleKeys.current.splice(collapsibleKeys.current.length - 1, 1);
+          // We have to put the item first in collapsed so that it can be retrieved in the correct order
           collapsedKeys.current.unshift(key);
         } else if (!isOverflowing() && collapsedKeys.current.length > 0) {
-          const k = collapsedKeys.current[0];
-          const el = ActionIconEls[k];
-          menuItemsMap.current.delete(k);
-          actionIconsMap.current.set(k, el);
-          collapsibleKeys.current.push(k);
+          // Pick the key of the menu item we can migrate from collapsed
+          const key = collapsedKeys.current[0];
+          // Remove from menu items and add to action icons
+          menuItemsMap.current.delete(key);
+          actionIconsMap.current.set(key, ActionIconEls[key]);
+          // Update collapsible/collapsed
+          // Push in last position of collapsible
+          collapsibleKeys.current.push(key);
+          // Remove first item of collapsed as it was put at first position above
           collapsedKeys.current.shift();
         }
 
         setActionIcons([...actionIconsMap.current.values()]);
+        // Array from map has to be reversed to keep prefs order since they are added from last collapsible
         setMenuItems([...menuItemsMap.current.values()].reverse());
       }, 20);
     }
@@ -91,6 +106,8 @@ export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: 
     setup();
     
     const observer = new ResizeObserver(triage);
+    // We can’t observe the target itself, as it will create an infinite loop
+    // since adding and removing elements inside it will trigger a resize.
     observer.observe(target.parentElement);
 
     return () => {
