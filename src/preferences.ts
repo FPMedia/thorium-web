@@ -45,22 +45,18 @@ export const RSPrefs = {
     ],
     [ActionKeys.settings]: {
       visibility: ActionVisibility.partially,
-      collapsible: false,
       shortcut: `${ShortcutMetaKeywords.platform}+P`
     },
     [ActionKeys.fullscreen]: {
       visibility: ActionVisibility.partially,
-      collapsible: true,
       shortcut: `${ShortcutMetaKeywords.platform}+F11`
     },
     [ActionKeys.toc]: {
       visibility: ActionVisibility.partially,
-      collapsible: true,
       shortcut: `${ShortcutMetaKeywords.platform}+N`
     },
     [ActionKeys.jumpToPosition]: {
       visibility: ActionVisibility.overflow,
-      collapsible: false,
       shortcut: `${ShortcutMetaKeywords.platform}+J`
     }
   }

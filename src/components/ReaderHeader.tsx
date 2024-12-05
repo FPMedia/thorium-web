@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 
 import Locale from "../resources/locales/en.json";
 import readerStateStyles from "./assets/styles/readerStates.module.css";
@@ -15,11 +15,12 @@ import { OverflowMenu } from "./OverflowMenu";
 import { RunningHead } from "./RunningHead";
 
 export const ReaderHeader = ({ toc }: { toc: Links }) => {
+  const actionsWrapper = useRef<HTMLDivElement | null>(null);
   const isImmersive = useAppSelector(state => state.reader.isImmersive);
   const isHovering = useAppSelector(state => state.reader.isHovering);
   const dispatch = useAppDispatch();
 
-  const Actions = useCollapsibility(toc);
+  const collapsibility = useCollapsibility(actionsWrapper.current, toc);
 
   const setHover = () => {
     dispatch(setHovering(true));
@@ -51,13 +52,14 @@ export const ReaderHeader = ({ toc }: { toc: Links }) => {
       <RunningHead syncDocTitle={ true } />
       
       <div 
+        ref={ actionsWrapper }
         className={ readerHeaderStyles.actionsWrapper } 
         aria-label={ Locale.reader.app.header.actions }
       >
-        { Actions.ActionIcons }
+        { collapsibility.ActionIcons }
 
         <OverflowMenu>
-          { Actions.MenuItems }
+          { collapsibility.MenuItems }
         </OverflowMenu>
     
       </div>
