@@ -13,7 +13,7 @@ import { ActionComponentVariant, ActionKeys, ActionVisibility } from "@/componen
 import debounce from "debounce";
 
 export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: Links) => {
-  const resizingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cachedParentWidth = useRef<number>(0);
 
   const collapsibleKeys = useRef<ActionKeys[]>([]);
   const collapsedKeys = useRef<ActionKeys[]>([]);
@@ -63,12 +63,16 @@ export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: 
     }
   }, [target]);
   
-  const triage = debounce(() => {
-    if (target) {        
+  const triage = debounce((entries: ResizeObserverEntry[]) => {
+    if (target) {
+      for (const entry of entries) {
         // Trying to protect against weird reports
         if (target.scrollWidth < target.offsetWidth) return;
 
-        if (isOverflowing() && collapsibleKeys.current.length > 0) {
+        if (
+          isOverflowing() && 
+          collapsibleKeys.current.length > 0
+        ) {
           // Pick the key of the action icon we can migrate from collapsible
           const key = collapsibleKeys.current[collapsibleKeys.current.length - 1];
           // Add to menu items and remove from action icons
@@ -79,7 +83,11 @@ export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: 
           collapsibleKeys.current.splice(collapsibleKeys.current.length - 1, 1);
           // We have to put the item first in collapsed so that it can be retrieved in the correct order
           collapsedKeys.current.unshift(key);
-        } else if (!isOverflowing() && collapsedKeys.current.length > 0) {
+        } else if (
+          !isOverflowing() && 
+          collapsedKeys.current.length > 0 && 
+          entry.contentRect.width > cachedParentWidth.current
+        ) {
           // Pick the key of the menu item we can migrate from collapsed
           const key = collapsedKeys.current[0];
           // Remove from menu items and add to action icons
@@ -92,10 +100,14 @@ export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: 
           collapsedKeys.current.shift();
         }
 
+        // Update cached width of parent element to filter false negatives of isOverflowing
+        cachedParentWidth.current = entry.contentRect.width;
+
         setActionIcons([...actionIconsMap.current.values()]);
         // Array from map has to be reversed to keep prefs order since they are added from last collapsible
         setMenuItems([...menuItemsMap.current.values()].reverse());
       };
+    }       
   }, 250);
 
   useEffect(() => {
