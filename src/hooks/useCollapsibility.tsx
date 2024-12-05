@@ -92,21 +92,29 @@ export const useCollapsibility = <T extends HTMLElement>(target: T | null, toc: 
           collapsedKeys.current.length > 0 && 
           entry.contentRect.width > cachedParentWidth.current
         ) {
-          // TODO: if dramatic change in width of the window/parentElement, 
+          // if dramatic change in width of the window/parentElement, 
           // it will only fire once, and not display all the action icons it can
           // because of the debounce…
           // throttling solve the issue, but creates another one the other way around… 
+          // so we have to do a loop to make this recursive…
+          while (
+            !isOverflowing() && 
+            collapsedKeys.current.length > 0
+          ) {
+            // Pick the key of the menu item we can migrate from collapsed
+            const key = collapsedKeys.current[0];
+            // Remove from menu items and add to action icons
+            menuItemsMap.current.delete(key);
+            actionIconsMap.current.set(key, ActionIconEls[key]);
+            // Update collapsible/collapsed
+            // Push in last position of collapsible
+            collapsibleKeys.current.push(key);
+            // Remove first item of collapsed as it was put at first position above
+            collapsedKeys.current.shift();
 
-          // Pick the key of the menu item we can migrate from collapsed
-          const key = collapsedKeys.current[0];
-          // Remove from menu items and add to action icons
-          menuItemsMap.current.delete(key);
-          actionIconsMap.current.set(key, ActionIconEls[key]);
-          // Update collapsible/collapsed
-          // Push in last position of collapsible
-          collapsibleKeys.current.push(key);
-          // Remove first item of collapsed as it was put at first position above
-          collapsedKeys.current.shift();
+            // Back to while condition
+            continue;
+          }
         }
 
         // Update cached width of parent element to filter false negatives of isOverflowing
