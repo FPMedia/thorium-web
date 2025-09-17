@@ -20,7 +20,6 @@ import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch } from "@/lib/hooks";
 import { setFullscreen, setHovering } from "@/lib/readerReducer";
-import { isIOSish } from "@/core/Helpers/getPlatform";
 
 export const StatefulFullscreenTrigger = ({ variant }: StatefulActionTriggerProps) => {
   // Note: Not using React Aria ToggleButton here as fullscreen is quite
@@ -50,7 +49,7 @@ export const StatefulFullscreenTrigger = ({ variant }: StatefulActionTriggerProp
   // And Actions is still a work in progress, with opportunities to rewrite/refactor
   // Note we don’t check window.matchMedia("(display-mode: standalone)").matches as this is not a PWA yet
   // And more values here: https://web.dev/learn/pwa/detection
-  if (!document.fullscreenEnabled || isIOSish()) return null;
+  if (!document.fullscreenEnabled) return null;
 
   return(
     <>
