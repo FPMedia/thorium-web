@@ -19,11 +19,11 @@ const books = [
 ];
 
 const onlineBooks: Publication[] = [
-  
+
 ];
 
 const webPublications: Publication[] = [
- 
+
 ];
 
 export default function Home() {
@@ -48,41 +48,41 @@ export default function Home() {
       <header className="header">
         <h1>Nicole Barlow Publications</h1>
 
-       
+
       </header>
 
       <PublicationGrid
-        publications={ [...books, ...webPublications] }
-        renderCover={ (publication) => (
+        publications={[...books, ...webPublications]}
+        renderCover={(publication) => (
           <Image
-            src={ publication.cover }
+            src={publication.cover}
             alt=""
             loading="lazy"
-            width={ 120 }
-            height={ 180 }
+            width={120}
+            height={180}
           />
-        ) }
+        )}
       />
 
-      { isManifestEnabled && (
+      {isManifestEnabled && (
         <>
-        <div className="dev-books">
-          
-          <PublicationGrid
-            publications={ onlineBooks }
-            renderCover={ (publication) => (
-              <Image
-                src={ publication.cover }
-                alt=""
-                loading="lazy"
-                width={ 120 }
-                height={ 180 }
-              />
-            ) }
-          />
-        </div>
+          <div className="dev-books">
+
+            <PublicationGrid
+              publications={onlineBooks}
+              renderCover={(publication) => (
+                <Image
+                  src={publication.cover}
+                  alt=""
+                  loading="lazy"
+                  width={120}
+                  height={180}
+                />
+              )}
+            />
+          </div>
         </>
-      ) }
+      )}
     </main>
   );
 }
