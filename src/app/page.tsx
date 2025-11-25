@@ -10,6 +10,13 @@ import "./home.css";
 
 const books = [
   {
+    title: "Hani's Assassin",
+    author: "Nicole Barlow",
+    cover: "/images/HanisAssassin.svg",
+    url: "/read/hanis-assassin",
+    rendition: "Reflowable EPUB"
+  },
+  {
     title: "Moby Dick",
     author: "Herman Melville",
     cover: "/images/MobyDick.jpg",
