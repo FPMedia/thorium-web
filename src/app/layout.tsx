@@ -5,13 +5,11 @@ import { ThStoreProvider } from "@/lib/ThStoreProvider";
 import { ThPreferencesProvider } from "@/preferences/ThPreferencesProvider";
 import { ThI18nProvider } from "@/i18n/ThI18nProvider";
 
-export const runtime = "edge";
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Thorium Web",
-  description: "Play with the capabilities of the Readium Web Toolkit",
+  title: "Nicole Barlow - Books",
+  description: "eReader for books by Nicole Barlow",
 };
 
 export default function RootLayout({

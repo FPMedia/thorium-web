@@ -84,12 +84,10 @@ This repository is using the following configuration:
 To deploy, the following script is run: 
 
 ```bash
-npx @cloudflare/next-on-pages && npx wrangler pages deploy
+pnpm run deploy
 ```
 
-It’s running with defaults, which means a commit triggers a build and deploy for the current branch to preview. You can then access the app from a subdomain using this branch name. 
-
-More details in [the @cloudflare/next-on-pages repo](https://github.com/cloudflare/next-on-pages).
+Which runs `opennextjs-cloudflare build && opennextjs-cloudflare deploy`. It's running with defaults, which means a commit triggers a build and deploy for the current branch to preview. You can then access the app from a subdomain using this branch name.
 
 ## Known Issues
 

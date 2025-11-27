@@ -12,8 +12,15 @@ const books = [
   {
     title: "Hani's Assassin",
     author: "Nicole Barlow",
-    cover: "/images/HanisAssassin.svg",
+    cover: "/images/cover-hanis-assassin.jpg",
     url: "/read/hanis-assassin",
+    rendition: "Reflowable EPUB"
+  },
+  {
+    title: "Fuelling Environmental Corruption",
+    author: "Nicole Barlow",
+    cover: "/images/cover-fuelling-environmental-corruption.JPG",
+    url: "/read/fuelling-environmental-corruption",
     rendition: "Reflowable EPUB"
   }
 ];
