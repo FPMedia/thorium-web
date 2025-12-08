@@ -114,7 +114,7 @@ export function Navigation() {
       }, 700);
       return () => clearTimeout(timer);
     }
-  }, [shouldPulse, pulseCount.current]);
+  }, [shouldPulse]);
 
   // Handle navigation click
   const handleNavClick = useCallback(
@@ -237,28 +237,44 @@ export function Navigation() {
         >
           <nav>
             <ul className="divide-y divide-gray-200">
-              {navItems.map((item, index) => (
-                <li key={index}>
-                  <Link
-                    href={item.href}
-                    onClick={(e) => handleNavClick(e, item.href)}
-                    target={item.href.startsWith("http") ? "_blank" : undefined}
-                    rel={
-                      item.href.startsWith("http")
-                        ? "noopener noreferrer"
-                        : undefined
-                    }
-                    className="block px-4 sm:px-6 lg:px-8 py-4 sm:py-5 lg:py-6 transition-colors duration-200 hover:text-cyan-600 hover:bg-gray-50"
-                  >
+              {navItems.map((item, index) => {
+                const isExternal = item.href.startsWith("http");
+                const linkClassName = "block px-4 sm:px-6 lg:px-8 py-4 sm:py-5 lg:py-6 transition-colors duration-200 hover:text-cyan-600 hover:bg-gray-50";
+                const content = (
+                  <>
                     <span className="block text-lg sm:text-xl font-bold text-black group-hover:text-cyan-600">
                       {item.title}
                     </span>
                     <span className="block text-xs sm:text-sm text-gray-600 mt-1">
                       {item.excerpt}
                     </span>
-                  </Link>
-                </li>
-              ))}
+                  </>
+                );
+
+                return (
+                  <li key={index}>
+                    {isExternal ? (
+                      <a
+                        href={item.href}
+                        onClick={(e) => handleNavClick(e, item.href)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={linkClassName}
+                      >
+                        {content}
+                      </a>
+                    ) : (
+                      <Link
+                        href={item.href as any}
+                        onClick={(e) => handleNavClick(e, item.href)}
+                        className={linkClassName}
+                      >
+                        {content}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </nav>
         </div>

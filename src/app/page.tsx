@@ -61,7 +61,7 @@ export default function Home() {
           </h1>
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto">
             Investigative journalism and thought-provoking narratives. 
-            Read Nicole Barlow's published works directly in your browser.
+            Read Nicole Barlow&apos;s published works directly in your browser.
           </p>
         </div>
       </header>
@@ -124,7 +124,7 @@ export default function Home() {
             About the Author
           </h2>
           <p className="text-gray-600 text-base sm:text-lg leading-relaxed mb-6">
-            Nicole Barlow is South Africa's foremost independent investigative journalist, 
+            Nicole Barlow is South Africa&apos;s foremost independent investigative journalist, 
             known for her fearless reporting and dedication to uncovering the truth. 
             Her published works reflect years of meticulous research and a commitment 
             to holding power accountable.

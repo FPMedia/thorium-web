@@ -840,6 +840,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     return () => {
       EpubNavigatorDestroy(() => p.destroy());
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publication, preferences, fxlThemeKeys, reflowThemeKeys]);
 
   // If breakpoint is not defined, we are not ready to render

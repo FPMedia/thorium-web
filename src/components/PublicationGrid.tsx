@@ -1,6 +1,7 @@
 "use client";
 
 import React, { cloneElement, isValidElement } from "react";
+import Image from "next/image";
 
 import publicationGridStyles from "./assets/styles/publicationGrid.module.css";
 
@@ -16,9 +17,11 @@ export const DefaultImage = ({
   src: string;
   alt?: string;
 }) => (
-  <img
+  <Image
     src={ src }
     alt={ alt }
+    width={120}
+    height={180}
     className={ publicationGridStyles.publicationImage }
     loading="lazy"
   />

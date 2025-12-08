@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 
 import backLinkStyles from "./assets/styles/backLink.module.css";
 import readerSharedUI from "./assets/styles/readerSharedUI.module.css";
@@ -93,7 +94,7 @@ export const StatefulBackLink = ({
       
       switch (content.type) {
         case "img":
-          contentNode = <img alt={ content.alt ?? "" } src={ content.src } />;
+          contentNode = <Image alt={ content.alt ?? "" } src={ content.src } width={24} height={24} />;
           break;
           
         case "svg":

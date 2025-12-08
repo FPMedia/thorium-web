@@ -441,6 +441,7 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
         p.destroy();
       });
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publication]);
 
   return (
