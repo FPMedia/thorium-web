@@ -2,7 +2,9 @@
 
 export * from "./Actions";
 export * from "./Docking";
+export * from "./Navigation";
 export * from "./Plugins";
+export * from "./ScrollToTop";
 export * from "./Settings";
 export * from "./Sheets";
 export * from "./StatefulLoader";

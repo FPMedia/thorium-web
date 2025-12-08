@@ -25,15 +25,16 @@
 }
 
 .publicationCover {
-  width: 120px;
-  height: 180px;
+  width: 140px;
+  min-height: 200px;
   flex-shrink: 0;
   margin: 0;
 }
 
 .publicationImage {
-  width: 120px;
-  height: 180px;
+  width: 140px;
+  height: 100%;
+  min-height: 200px;
   object-fit: cover;
 }
 
@@ -65,6 +66,17 @@
   border-radius: 20px;
   font-size: 0.875rem;
   font-weight: 500;
-  margin-top: auto;
   align-self: flex-start;
+}
+
+.publicationDescription {
+  margin: 0.75rem 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

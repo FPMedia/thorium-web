@@ -30,6 +30,7 @@ export interface Publication {
   cover: string;
   url: string;
   rendition?: string;
+  description?: string;
 }
 
 export interface PublicationGridProps {
@@ -95,6 +96,11 @@ export const PublicationGrid = ({
             { publication.rendition && (
               <p className={ publicationGridStyles.publicationRendition }>
                 { publication.rendition }
+              </p>
+            ) }
+            { publication.description && (
+              <p className={ publicationGridStyles.publicationDescription }>
+                { publication.description }
               </p>
             ) }
           </div>

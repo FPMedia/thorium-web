@@ -6,7 +6,8 @@ import { InitOptions } from "i18next";
 
 export const DEFAULT_CONFIG: InitOptions = {
   fallbackLng: "en",
-  load: "all",
+  load: "languageOnly",
+  cleanCode: true,
   nonExplicitSupportedLngs: true,
   detection: {
     order: ["navigator"],
