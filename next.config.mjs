@@ -1,3 +1,9 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   // Disable React running twice as it messes up with iframes
@@ -5,6 +11,8 @@ const nextConfig = {
   typedRoutes: true,
   // Required for OpenNext Cloudflare to generate standalone build
   output: 'standalone',
+  // Fix workspace root detection to prevent nested standalone structure
+  outputFileTracingRoot: __dirname,
   experimental: {
     webpackBuildWorker: true,
   },
