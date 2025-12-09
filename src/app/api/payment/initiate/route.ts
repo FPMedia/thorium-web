@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     
     if (!token) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: "Unauthorized", message: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -23,12 +23,22 @@ export async function POST(request: NextRequest) {
     const userEmail = decodedToken.email || "";
 
     // Get request body
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      return NextResponse.json(
+        { error: "Invalid request body", message: "Invalid request body" },
+        { status: 400 }
+      );
+    }
+    
     const { bookId } = body;
 
     if (!bookId) {
       return NextResponse.json(
-        { error: "bookId is required" },
+        { error: "bookId is required", message: "bookId is required" },
         { status: 400 }
       );
     }
@@ -37,7 +47,7 @@ export async function POST(request: NextRequest) {
     const book = getBookById(bookId);
     if (!book) {
       return NextResponse.json(
-        { error: "Book not found" },
+        { error: "Book not found", message: "Book not found" },
         { status: 404 }
       );
     }
@@ -60,20 +70,66 @@ export async function POST(request: NextRequest) {
     
     // Use forwarded host if available (ngrok), otherwise use host header, fallback to nextUrl
     const actualHost = forwardedHost || host || request.nextUrl.host;
+    
+    if (!actualHost) {
+      console.error("Unable to determine host from request headers");
+      return NextResponse.json(
+        { error: "Unable to determine server URL", message: "Unable to determine server URL" },
+        { status: 500 }
+      );
+    }
+    
     const baseUrl = `${protocol}//${actualHost}`;
     
-    const paymentData = generatePaymentRequest(
-      userId,
-      book.id,
-      book.title,
-      userEmail,
-      purchaseId,
-      book.price,
-      baseUrl
-    );
+    // Validate baseUrl is a valid URL
+    try {
+      new URL(baseUrl);
+    } catch (urlError) {
+      console.error("Invalid baseUrl constructed:", baseUrl, urlError);
+      return NextResponse.json(
+        { error: "Invalid server configuration", message: "Invalid server configuration" },
+        { status: 500 }
+      );
+    }
+    
+    // Validate Payfast configuration before proceeding
+    let config;
+    try {
+      config = getPayfastConfig(baseUrl);
+    } catch (configError) {
+      console.error("Payfast configuration error:", configError);
+      return NextResponse.json(
+        { 
+          error: "Payment configuration error", 
+          message: configError instanceof Error ? configError.message : "Payment configuration error" 
+        },
+        { status: 500 }
+      );
+    }
+    
+    let paymentData;
+    try {
+      paymentData = generatePaymentRequest(
+        userId,
+        book.id,
+        book.title,
+        userEmail,
+        purchaseId,
+        book.price,
+        baseUrl
+      );
+    } catch (paymentError) {
+      console.error("Error generating payment request:", paymentError);
+      return NextResponse.json(
+        { 
+          error: "Failed to generate payment request", 
+          message: paymentError instanceof Error ? paymentError.message : "Failed to generate payment request" 
+        },
+        { status: 500 }
+      );
+    }
 
     // Debug: Log payload string for PayFast Signature Troubleshooter
-    const config = getPayfastConfig(baseUrl);
     // Extract only valid PayFast parameters (exclude signature and any extra fields)
     const { signature: _, ...paymentDataForSignature } = paymentData;
     const payloadString = getSignaturePayloadString(
@@ -103,14 +159,20 @@ export async function POST(request: NextRequest) {
       // Handle Firebase auth errors
       if (error.message.includes("token") || error.message.includes("auth")) {
         return NextResponse.json(
-          { error: "Unauthorized" },
+          { error: "Unauthorized", message: "Unauthorized" },
           { status: 401 }
         );
       }
+      
+      // Return the actual error message for debugging
+      return NextResponse.json(
+        { error: error.message, message: error.message },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", message: "Internal server error" },
       { status: 500 }
     );
   }

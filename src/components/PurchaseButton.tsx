@@ -80,9 +80,29 @@ export function PurchaseButton({ bookId, className = "" }: PurchaseButtonProps) 
         }),
       });
 
+      // Check if response is JSON
+      const contentType = response.headers.get("content-type");
+      const isJson = contentType && contentType.includes("application/json");
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to initiate payment");
+        let errorMessage = "Failed to initiate payment";
+        if (isJson) {
+          try {
+            const error = await response.json();
+            errorMessage = error.message || error.error || errorMessage;
+          } catch (e) {
+            // If JSON parsing fails, use status text
+            errorMessage = response.statusText || errorMessage;
+          }
+        } else {
+          // If not JSON, it's probably an HTML error page
+          errorMessage = `Server error (${response.status}): ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      if (!isJson) {
+        throw new Error("Server returned invalid response format");
       }
 
       const { paymentData, paymentUrl } = await response.json();
