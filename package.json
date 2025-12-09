@@ -41,15 +41,11 @@
   },
   "scripts": {
     "dev": "next dev",
-    
     "start": "next start",
     "lint": "next lint",
-    
     "preinstall": "npx only-allow pnpm",
     "copy-locales": "cpx \"public/locales/**/*\" dist/locales",
     "bundle": "tsup --config tsup.config.ts && pnpm copy-locales",
-
-
     "build": "next build",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
@@ -85,6 +81,7 @@
     "@reduxjs/toolkit": "^2.9.0",
     "classnames": "^2.5.1",
     "debounce": "^2.2.0",
+    "firebase": "^12.6.0",
     "i18next": "^25.6.0",
     "i18next-browser-languagedetector": "^8.2.0",
     "i18next-http-backend": "^3.0.2",
@@ -101,9 +98,8 @@
     "react-stately": "^3.42.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "@svgr/webpack": "^8.1.0",
+    "@tailwindcss/postcss": "^4",
     "@types/css-modules": "^1.0.5",
     "@types/node": "^22.18.10",
     "@types/react": "^19.2.2",
@@ -114,6 +110,7 @@
     "eslint-config-next": "15.5.5",
     "glob": "^11.0.3",
     "immer": "^10.1.3",
+    "tailwindcss": "^4",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "wrangler": "^4.51.0"

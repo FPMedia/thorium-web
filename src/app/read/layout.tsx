@@ -1,5 +1,7 @@
 "use client";
 
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+
 /**
  * Reader Layout
  * 
@@ -13,8 +15,10 @@ export default function ReaderLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="reader-layout">
-      {children}
-    </div>
+    <ProtectedRoute>
+      <div className="reader-layout">
+        {children}
+      </div>
+    </ProtectedRoute>
   );
 }

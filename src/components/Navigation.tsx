@@ -3,39 +3,18 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { useRouter } from "next/navigation";
 
 // Types
 interface NavItem {
   title: string;
   href: string;
   excerpt: string;
+  action?: () => void;
 }
 
 type ScrollDirection = "up" | "down";
-
-// Navigation items configuration for books subdomain
-const navItems: NavItem[] = [
-  {
-    title: "Home",
-    href: "/",
-    excerpt: "Browse Nicole Barlow's published works and digital library...",
-  },
-  {
-    title: "Books",
-    href: "/#books",
-    excerpt: "Explore the collection of investigative publications and books...",
-  },
-  {
-    title: "About",
-    href: "/#about",
-    excerpt: "Learn about Nicole Barlow's journey as an author and journalist...",
-  },
-  {
-    title: "Main Site",
-    href: "https://nicolebarlow.co.za",
-    excerpt: "Visit the main website for podcasts, articles, and more...",
-  },
-];
 
 // Custom ease-out cubic function for smooth scrolling
 const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
@@ -82,6 +61,50 @@ export function Navigation() {
   const [shouldPulse, setShouldPulse] = useState(true);
   const lastScrollY = useRef(0);
   const pulseCount = useRef(0);
+  const { user, signOut, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  // Get navigation items based on auth state
+  const getNavItems = (): NavItem[] => {
+    if (authLoading) {
+      return [];
+    }
+
+    if (user) {
+      // User is logged in
+      return [
+        {
+          title: "Profile",
+          href: "/profile",
+          excerpt: "View and manage your account settings and preferences...",
+        },
+        {
+          title: "Logout",
+          href: "#",
+          excerpt: "Sign out of your account...",
+          action: async () => {
+            await signOut();
+            setIsMenuOpen(false);
+            router.push("/");
+          },
+        },
+      ];
+    } else {
+      // User is not logged in
+      return [
+        {
+          title: "Login",
+          href: "/login",
+          excerpt: "Sign in to your account to access books and publications...",
+        },
+        {
+          title: "Sign Up",
+          href: "/signup",
+          excerpt: "Create a new account to start reading...",
+        },
+      ];
+    }
+  };
 
   // Handle scroll detection
   useEffect(() => {
@@ -118,7 +141,14 @@ export function Navigation() {
 
   // Handle navigation click
   const handleNavClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>, href: string): void => {
+    (e: React.MouseEvent<HTMLAnchorElement>, href: string, action?: () => void): void => {
+      // If there's a custom action, use it instead
+      if (action) {
+        e.preventDefault();
+        action();
+        return;
+      }
+
       // Check if it's an anchor link
       if (href.startsWith("/#")) {
         e.preventDefault();
@@ -128,6 +158,9 @@ export function Navigation() {
       } else if (href.startsWith("/")) {
         // Internal link - close menu
         setIsMenuOpen(false);
+      } else if (href === "#") {
+        // Placeholder link - prevent default
+        e.preventDefault();
       } else {
         // External link - close menu
         setIsMenuOpen(false);
@@ -164,7 +197,7 @@ export function Navigation() {
             : "opacity-100 scale-100"
         }`}
       >
-        <Link href="/">
+        <Link href="/" className="cursor-pointer">
           <Image
             src="/images/nicole_barlow_logo_final.svg"
             alt="Nicole Barlow"
@@ -180,7 +213,7 @@ export function Navigation() {
       <button
         onClick={toggleMenu}
         aria-expanded={isMenuOpen}
-        className={`fixed top-4 right-4 z-50 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/95 backdrop-blur-sm shadow-xl ring-2 ring-cyan-500 flex items-center justify-center transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 ${
+        className={`fixed top-4 right-4 z-50 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/95 backdrop-blur-sm shadow-xl ring-2 ring-cyan-500 flex items-center justify-center transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 cursor-pointer ${
           shouldPulse ? "animate-pulse-cyan" : ""
         }`}
       >
@@ -214,7 +247,7 @@ export function Navigation() {
       {/* Full-Screen Menu Overlay */}
       <div
         onClick={handleBackdropClick}
-        className={`fixed inset-0 z-40 flex items-center justify-center transition-all duration-300 ${
+        className={`fixed inset-0 z-40 flex items-center justify-center transition-all duration-300 cursor-pointer ${
           isMenuOpen
             ? "visible opacity-100"
             : "invisible opacity-0 pointer-events-none"
@@ -237,9 +270,9 @@ export function Navigation() {
         >
           <nav>
             <ul className="divide-y divide-gray-200">
-              {navItems.map((item, index) => {
+              {getNavItems().map((item, index) => {
                 const isExternal = item.href.startsWith("http");
-                const linkClassName = "block px-4 sm:px-6 lg:px-8 py-4 sm:py-5 lg:py-6 transition-colors duration-200 hover:text-cyan-600 hover:bg-gray-50";
+                const linkClassName = "block px-4 sm:px-6 lg:px-8 py-4 sm:py-5 lg:py-6 transition-colors duration-200 hover:text-cyan-600 hover:bg-gray-50 cursor-pointer";
                 const content = (
                   <>
                     <span className="block text-lg sm:text-xl font-bold text-black group-hover:text-cyan-600">
@@ -256,9 +289,17 @@ export function Navigation() {
                     {isExternal ? (
                       <a
                         href={item.href}
-                        onClick={(e) => handleNavClick(e, item.href)}
+                        onClick={(e) => handleNavClick(e, item.href, item.action)}
                         target="_blank"
                         rel="noopener noreferrer"
+                        className={linkClassName}
+                      >
+                        {content}
+                      </a>
+                    ) : item.action ? (
+                      <a
+                        href={item.href}
+                        onClick={(e) => handleNavClick(e, item.href, item.action)}
                         className={linkClassName}
                       >
                         {content}
@@ -266,7 +307,7 @@ export function Navigation() {
                     ) : (
                       <Link
                         href={item.href as any}
-                        onClick={(e) => handleNavClick(e, item.href)}
+                        onClick={(e) => handleNavClick(e, item.href, item.action)}
                         className={linkClassName}
                       >
                         {content}

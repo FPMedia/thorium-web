@@ -4,6 +4,7 @@ import { Poppins, Roboto, Roboto_Mono, Mrs_Saint_Delafield } from "next/font/goo
 import { ThStoreProvider } from "@/lib/ThStoreProvider";
 import { ThPreferencesProvider } from "@/preferences/ThPreferencesProvider";
 import { ThI18nProvider } from "@/i18n/ThI18nProvider";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { ErrorHandler } from "./ErrorHandler";
 import "./app.css";
 
@@ -57,7 +58,9 @@ export default function RootLayout({
         <ThStoreProvider>
           <ThPreferencesProvider>
             <ThI18nProvider>
-              {children}
+              <AuthProvider>
+                {children}
+              </AuthProvider>
             </ThI18nProvider>
           </ThPreferencesProvider>
         </ThStoreProvider>
