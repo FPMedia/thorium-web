@@ -3,6 +3,8 @@ const nextConfig = {
   // Disable React running twice as it messes up with iframes
   reactStrictMode: false,
   typedRoutes: true,
+  // Required for OpenNext Cloudflare to generate standalone build
+  output: 'standalone',
   experimental: {
     webpackBuildWorker: true,
   },
