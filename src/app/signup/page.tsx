@@ -34,7 +34,7 @@ export default function SignupPage() {
 
     try {
       await signUp(email, password);
-      router.push(redirectTo);
+      router.push(redirectTo as any);
     } catch (err: any) {
       setError(err.message || "Failed to create account. Please try again.");
     } finally {
@@ -52,7 +52,7 @@ export default function SignupPage() {
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{" "}
             <Link
-              href={`/login${redirectTo !== "/" ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`}
+              href={`/login${redirectTo !== "/" ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}` as any}
               className="font-medium text-cyan-600 hover:text-cyan-500 cursor-pointer"
             >
               sign in to your existing account

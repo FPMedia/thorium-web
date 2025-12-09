@@ -13,13 +13,13 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login?redirect=/profile");
+      router.push("/login?redirect=/profile" as any);
     }
   }, [user, loading, router]);
 
   const handleSignOut = async () => {
     await signOut();
-    router.push("/");
+    router.push("/" as any);
   };
 
   if (loading) {

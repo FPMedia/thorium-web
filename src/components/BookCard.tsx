@@ -30,7 +30,7 @@ export function BookCard({
   
   return (
     <div className={`flex flex-col sm:flex-row bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden ${isImageRight ? 'sm:flex-row-reverse' : ''}`}>
-      <Link href={url} className="flex-shrink-0 cursor-pointer sm:w-1/3">
+      <Link href={url as any} className="flex-shrink-0 cursor-pointer sm:w-1/3">
         <Image
           src={cover}
           alt={title}
@@ -41,7 +41,7 @@ export function BookCard({
         />
       </Link>
       <div className="flex flex-col flex-grow p-6 sm:p-8 lg:p-10 sm:w-2/3 justify-between">
-        <Link href={url} className="flex-grow cursor-pointer">
+        <Link href={url as any} className="flex-grow cursor-pointer">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-black mb-3 sm:mb-4 hover:text-cyan-600 transition-colors">
             {title}
           </h2>

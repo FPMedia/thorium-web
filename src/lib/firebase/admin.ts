@@ -87,10 +87,10 @@ export async function verifyIdToken(token: string): Promise<DecodedIdToken> {
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
     return {
+      ...decodedToken,
       uid: decodedToken.uid,
       email: decodedToken.email,
       email_verified: decodedToken.email_verified || false,
-      ...decodedToken,
     };
   } catch (error) {
     console.error("Error verifying token:", error);

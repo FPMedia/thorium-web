@@ -22,7 +22,7 @@ export default function LoginPage() {
 
     try {
       await signIn(email, password);
-      router.push(redirectTo);
+      router.push(redirectTo as any);
     } catch (err: any) {
       setError(err.message || "Failed to sign in. Please check your credentials.");
     } finally {
@@ -40,7 +40,7 @@ export default function LoginPage() {
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{" "}
             <Link
-              href={`/signup${redirectTo !== "/" ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`}
+              href={`/signup${redirectTo !== "/" ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}` as any}
               className="font-medium text-cyan-600 hover:text-cyan-500 cursor-pointer"
             >
               create a new account

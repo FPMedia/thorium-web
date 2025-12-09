@@ -3,8 +3,10 @@ import { CreatePurchaseData, PurchaseStatus } from "@/types/purchase";
 
 const PURCHASES_COLLECTION = "purchases";
 
-// Get Firestore instance from admin
-const db = admin.firestore();
+// Lazy-load Firestore instance to avoid initialization during build
+function getDb() {
+  return admin.firestore();
+}
 
 /**
  * Convert a Date to a Firestore Timestamp
@@ -57,6 +59,7 @@ export async function createPurchaseServer(
       updatedAt: now,
     };
 
+    const db = getDb();
     if (documentId) {
       // Use the provided document ID (e.g., from PayFast m_payment_id)
       await db.collection(PURCHASES_COLLECTION).doc(documentId).set(purchaseDoc);
@@ -77,6 +80,7 @@ export async function createPurchaseServer(
  */
 export async function getPurchaseByIdServer(purchaseId: string): Promise<any | null> {
   try {
+    const db = getDb();
     const docRef = db.collection(PURCHASES_COLLECTION).doc(purchaseId);
     const docSnap = await docRef.get();
 
@@ -103,6 +107,7 @@ export async function updatePurchaseStatusServer(
   transactionId?: string
 ): Promise<void> {
   try {
+    const db = getDb();
     const docRef = db.collection(PURCHASES_COLLECTION).doc(purchaseId);
     const updateData: any = {
       status,

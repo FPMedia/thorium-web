@@ -29,7 +29,7 @@ export default function BookPage({ params }: Props) {
   const { user, loading: authLoading } = useAuth();
   
   // Get book ID from route identifier
-  const bookId = identifier ? getBookIdFromRouteIdentifier(identifier) : null;
+  const bookId = identifier ? (getBookIdFromRouteIdentifier(identifier) ?? null) : null;
   const { ownsBook, loading: ownershipLoading } = useBookOwnership(bookId);
 
   useEffect(() => {

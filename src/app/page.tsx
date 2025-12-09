@@ -30,7 +30,7 @@ const webPublications: Publication[] = [];
 export default function Home() {
   const [isManifestEnabled, setIsManifestEnabled] = useState<boolean>(true);
   const { user, loading: authLoading } = useAuth();
-  const { purchases, loading: purchasesLoading } = usePurchases({ status: "completed" });
+  const { purchases, loading: purchasesLoading, error: purchasesError } = usePurchases({ status: "completed" });
 
   useEffect(() => {
     const checkManifestRoute = async () => {
@@ -110,11 +110,29 @@ export default function Home() {
           {/* Purchase Status Message */}
           {!authLoading && !purchasesLoading && user && (
             <div className="mb-8 sm:mb-12">
+              {purchasesError && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 sm:p-6 mb-4">
+                  <p className="text-sm sm:text-base text-yellow-900">
+                    ⚠️ Error loading purchases: {purchasesError.message}
+                  </p>
+                  {purchasesError.message.includes("index") && (
+                    <p className="text-xs sm:text-sm text-yellow-700 mt-2">
+                      Please create the required Firestore index. Check the browser console for the index creation link.
+                    </p>
+                  )}
+                </div>
+              )}
               {(() => {
+                // Debug logging
+                console.log("Purchases:", purchases);
+                console.log("Books:", books.map(b => ({ id: b.bookId, title: b.title })));
+                
                 const allBookIds = books.map(book => book.bookId).filter((id): id is string => !!id);
-                const ownedBookIds = new Set(
-                  purchases.map(purchase => purchase.bookId).filter((id): id is string => !!id)
-                );
+                const purchaseBookIds = purchases.map(purchase => purchase.bookId).filter((id): id is string => !!id);
+                console.log("All book IDs:", allBookIds);
+                console.log("Purchase book IDs:", purchaseBookIds);
+                
+                const ownedBookIds = new Set(purchaseBookIds);
                 const ownedBooks = allBookIds
                   .filter(bookId => ownedBookIds.has(bookId))
                   .map(bookId => {
@@ -125,6 +143,8 @@ export default function Home() {
                   .filter((book): book is NonNullable<typeof book> => !!book);
                 const totalBooks = allBookIds.length;
                 const ownedCount = ownedBooks.length;
+                
+                console.log("Owned books count:", ownedCount, "Total books:", totalBooks);
 
                 if (ownedCount === 0) {
                   return (
