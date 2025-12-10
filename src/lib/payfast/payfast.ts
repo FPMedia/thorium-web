@@ -102,6 +102,20 @@ export function generatePaymentSignature(
 }
 
 /**
+ * Sanitize string for Payfast - remove problematic special characters
+ * Payfast can be sensitive to certain special characters (like apostrophes) in item_name
+ * that cause signature mismatches even when properly URL encoded
+ */
+function sanitizeForPayfast(value: string): string {
+  return value
+    .replace(/'/g, "") // Remove apostrophes (known issue with Payfast signatures)
+    .replace(/"/g, "") // Remove quotes
+    .replace(/[^\w\s-]/g, "") // Remove any other special characters except word chars, spaces, and hyphens
+    .replace(/\s+/g, " ") // Normalize multiple spaces to single space
+    .trim();
+}
+
+/**
  * Generate Payfast payment request data
  */
 export function generatePaymentRequest(
@@ -119,6 +133,9 @@ export function generatePaymentRequest(
   // PayFast expects the amount in the main currency unit, not cents
   const amountFormatted = amount.toFixed(2);
 
+  // Sanitize book title for Payfast (remove special characters that cause signature issues)
+  const sanitizedTitle = sanitizeForPayfast(bookTitle);
+
   const paymentData: Omit<PayfastPaymentData, "signature"> = {
     merchant_id: config.merchantId,
     merchant_key: config.merchantKey,
@@ -128,7 +145,7 @@ export function generatePaymentRequest(
     email_address: userEmail,
     m_payment_id: purchaseId,
     amount: amountFormatted,
-    item_name: bookTitle,
+    item_name: sanitizedTitle, // Use sanitized title to avoid signature issues
     custom_str1: bookId, // Store bookId in custom field
     custom_str2: userId, // Store userId in custom field for ITN callback
   };
