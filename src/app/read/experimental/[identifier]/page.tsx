@@ -4,7 +4,8 @@ import { use, useEffect, useState } from "react";
 import { ExperimentalWebPubStatefulReader } from "@/components/WebPub";
 import { StatefulLoader } from "@/components/StatefulLoader";
 import { usePublication } from "@/hooks/usePublication";
-import { useAppSelector } from "@/lib/hooks";
+import { useAppSelector, useAppDispatch } from "@/lib/hooks";
+import { setLoading, setLoadingPhase } from "@/lib/readerReducer";
 import { verifyManifestUrl } from "@/app/api/verify-manifest/verifyDomain";
 
 import "@/app/app.css";
@@ -22,12 +23,19 @@ type Props = {
 };
 
 export default function WebPubPage({ params }: Props) {
+  const dispatch = useAppDispatch();
   const [domainError, setDomainError] = useState<string | null>(null);
   const identifier = use(params).identifier;
   const isLoading = useAppSelector(state => state.reader.isLoading);
   
   // Determine manifest URL - either from predefined list or treat identifier as URL
   const manifestUrl = identifier ? WEB_MANIFESTS[identifier as keyof typeof WEB_MANIFESTS] || identifier : "";
+
+  // Reset loading state when identifier changes
+  useEffect(() => {
+    dispatch(setLoading(true));
+    dispatch(setLoadingPhase("fetching-manifest"));
+  }, [identifier, dispatch]);
 
   useEffect(() => {
     if (manifestUrl) {

@@ -3,10 +3,19 @@ import { createSlice } from "@reduxjs/toolkit";
 import { defaultPlatformModifier, UnstablePlatformModifier } from "@/core/Helpers/keyboardUtilities";
 import { ThSettingsContainerKeys, ThLayoutDirection } from "@/preferences/models/enums";
 
+export type LoadingPhase = 
+  | "fetching-manifest"
+  | "initializing-publication"
+  | "fetching-positions"
+  | "initializing-navigator"
+  | "ready";
+
 export interface ReaderReducerState {
   profile: "epub" | "webPub" | undefined;
   direction: ThLayoutDirection;
   isLoading: boolean;
+  loadingProgress: number; // 0-100
+  loadingPhase: LoadingPhase;
   isImmersive: boolean;
   isHovering: boolean;
   hasScrollAffordance: boolean;
@@ -21,6 +30,8 @@ const initialState: ReaderReducerState = {
   profile: undefined,
   direction: ThLayoutDirection.ltr,
   isLoading: true,
+  loadingProgress: 0,
+  loadingPhase: "fetching-manifest",
   isImmersive: false,
   isHovering: false,
   hasScrollAffordance: false,
@@ -43,6 +54,25 @@ export const readerSlice = createSlice({
     },
     setLoading: (state, action) => {
       state.isLoading = action.payload
+      if (!action.payload) {
+        state.loadingProgress = 100;
+        state.loadingPhase = "ready";
+      }
+    },
+    setLoadingProgress: (state, action) => {
+      state.loadingProgress = action.payload
+    },
+    setLoadingPhase: (state, action) => {
+      state.loadingPhase = action.payload
+      // Auto-update progress based on phase
+      const phaseProgress: Record<LoadingPhase, number> = {
+        "fetching-manifest": 10,
+        "initializing-publication": 30,
+        "fetching-positions": 60,
+        "initializing-navigator": 85,
+        "ready": 100
+      };
+      state.loadingProgress = phaseProgress[action.payload] || state.loadingProgress;
     },
     setPlatformModifier: (state, action) => {
       state.platformModifier = action.payload
@@ -91,6 +121,8 @@ export const {
   setReaderProfile, 
   setDirection, 
   setLoading,
+  setLoadingProgress,
+  setLoadingPhase,
   setPlatformModifier, 
   setImmersive, 
   toggleImmersive, 

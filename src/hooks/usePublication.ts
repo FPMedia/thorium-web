@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "@readium/shared";
 import { HttpFetcher } from "@readium/shared";
+import { useAppDispatch } from "@/lib/hooks";
+import { setLoadingPhase } from "@/lib/readerReducer";
 
 export interface UsePublicationOptions {
   url: string;
@@ -13,6 +15,7 @@ export const usePublication = ({
   url, 
   onError = () => {} 
 }: UsePublicationOptions) => {
+  const dispatch = useAppDispatch();
   const [error, setError] = useState("");
   const [manifest, setManifest] = useState<object | undefined>(undefined);
   const [selfLink, setSelfLink] = useState<string | undefined>(undefined);
@@ -23,6 +26,9 @@ export const usePublication = ({
       setError("Manifest URL is required");
       return;
     }
+
+    // Set loading phase to fetching manifest
+    dispatch(setLoadingPhase("fetching-manifest"));
 
     // Decode URL if needed
     const decodedUrl = decodeURIComponent(url);
@@ -41,6 +47,8 @@ export const usePublication = ({
       // Then get manifest data
       fetched.readAsJSON().then((manifestData) => {
         setManifest(manifestData as object);
+        // Move to next phase when manifest is loaded
+        dispatch(setLoadingPhase("initializing-publication"));
       }).catch((error) => {
         console.error("Error loading manifest:", error);
         setError(`Failed loading manifest ${ decodedUrl }: ${ error instanceof Error ? error.message : "Unknown error" }`);
@@ -49,7 +57,7 @@ export const usePublication = ({
       console.error("Error loading manifest:", error);
       setError(`Failed loading manifest ${ decodedUrl }: ${ error instanceof Error ? error.message : "Unknown error" }`);
     }
-  }, [url]);
+  }, [url, dispatch]);
 
   // Call onError callback when error changes
   useEffect(() => {

@@ -8,6 +8,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { useAuth } from "@/lib/auth/AuthContext";
 import Image from "next/image";
 import { BookCard } from "@/components/BookCard";
+import { ReadButton } from "@/components/ReadButton";
 
 import { isManifestRouteEnabled } from "./ManifestRouteEnabled";
 import { getAllBooks, getBookById } from "@/config/books";
@@ -188,27 +189,13 @@ export default function Home() {
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                         {ownedBooks.map(book => (
-                          <Link
+                          <ReadButton
                             key={book.id}
                             href={book.url as any}
-                            className="inline-flex items-center justify-center px-5 py-2.5 bg-green-600 text-white font-medium rounded-full hover:bg-green-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 cursor-pointer text-sm sm:text-base"
+                            variant="secondary"
                           >
                             Read {book.title}
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={2}
-                              stroke="currentColor"
-                              className="w-4 h-4 ml-2"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                              />
-                            </svg>
-                          </Link>
+                          </ReadButton>
                         ))}
                       </div>
                     </div>
@@ -233,26 +220,10 @@ export default function Home() {
                                 {book.title}
                               </p>
                             </div>
-                            <Link
+                            <ReadButton
                               href={book.url as any}
-                              className="inline-flex items-center justify-center px-5 py-2 bg-cyan-600 text-white font-medium rounded-full hover:bg-cyan-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 cursor-pointer text-sm sm:text-base w-full sm:w-auto"
-                            >
-                              Read Now
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={2}
-                                stroke="currentColor"
-                                className="w-4 h-4 ml-2"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                                />
-                              </svg>
-                            </Link>
+                              className="w-full sm:w-auto"
+                            />
                           </div>
                         ))}
                       </div>

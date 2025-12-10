@@ -86,6 +86,7 @@ import {
 import { 
   setImmersive, 
   setLoading,
+  setLoadingPhase,
   setHovering, 
   toggleImmersive, 
   setPlatformModifier, 
@@ -746,6 +747,9 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     const displayTransformability = publication.metadata.accessibility?.feature?.some(feature =>  feature && feature.value === Feature.DISPLAY_TRANSFORMABILITY.value);
     dispatch(setHasDisplayTransformability(displayTransformability));
 
+    // Set phase to fetching positions
+    dispatch(setLoadingPhase("fetching-positions"));
+
     let positionsList: Locator[] | undefined;
 
     const fetchPositions = async () => {
@@ -757,6 +761,8 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     fetchPositions()
       .catch(console.error)
       .then(() => {
+        // Set phase to initializing navigator
+        dispatch(setLoadingPhase("initializing-navigator"));
         const isFXL = publication.metadata.effectiveLayout === Layout.fixed;
 
         const initialPosition: Locator | null = getLocalData();

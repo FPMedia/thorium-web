@@ -4,7 +4,8 @@ import { use, useEffect, useState } from "react";
 import { StatefulReader } from "@/components/Epub";
 import { StatefulLoader } from "@/components/StatefulLoader";
 import { usePublication } from "@/hooks/usePublication";
-import { useAppSelector } from "@/lib/hooks";
+import { useAppSelector, useAppDispatch } from "@/lib/hooks";
+import { setLoading, setLoadingPhase } from "@/lib/readerReducer";
 import { verifyManifestUrl } from "@/app/api/verify-manifest/verifyDomain";
 
 import "@/app/app.css";
@@ -16,9 +17,16 @@ type Props = {
 };
 
 export default function ManifestPage({ params }: Props) {
+  const dispatch = useAppDispatch();
   const [domainError, setDomainError] = useState<string | null>(null);
   const isLoading = useAppSelector(state => state.reader.isLoading);
   const manifestUrl = use(params).manifest;
+
+  // Reset loading state when manifest URL changes
+  useEffect(() => {
+    dispatch(setLoading(true));
+    dispatch(setLoadingPhase("fetching-manifest"));
+  }, [manifestUrl, dispatch]);
 
   useEffect(() => {
     if (manifestUrl) {

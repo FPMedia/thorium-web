@@ -6,11 +6,12 @@ import { StatefulReader } from "@/components/Epub";
 import { StatefulLoader } from "@/components/StatefulLoader";
 import { PUBLICATION_MANIFESTS } from "@/config/publications";
 import { usePublication } from "@/hooks/usePublication";
-import { useAppSelector } from "@/lib/hooks";
+import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 import { verifyManifestUrl } from "@/app/api/verify-manifest/verifyDomain";
 import { useBookOwnership } from "@/hooks/usePurchases";
 import { getBookIdFromRouteIdentifier } from "@/config/books";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { setLoading, setLoadingPhase } from "@/lib/readerReducer";
 import Link from "next/link";
 
 import "@/app/app.css";
@@ -22,6 +23,7 @@ type Props = {
 };
 
 export default function BookPage({ params }: Props) {
+  const dispatch = useAppDispatch();
   const [domainError, setDomainError] = useState<string | null>(null);
   const identifier = use(params).identifier;
   const isLoading = useAppSelector(state => state.reader.isLoading);
@@ -31,6 +33,12 @@ export default function BookPage({ params }: Props) {
   // Get book ID from route identifier
   const bookId = identifier ? (getBookIdFromRouteIdentifier(identifier) ?? null) : null;
   const { ownsBook, loading: ownershipLoading } = useBookOwnership(bookId);
+
+  // Reset loading state when identifier changes (new book selected)
+  useEffect(() => {
+    dispatch(setLoading(true));
+    dispatch(setLoadingPhase("fetching-manifest"));
+  }, [identifier, dispatch]);
 
   useEffect(() => {
     if (manifestUrl) {

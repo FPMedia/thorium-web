@@ -52,14 +52,14 @@ function getServiceAccount(): ServiceAccount {
     .replace(new RegExp(ESCAPED_NEWLINE_PLACEHOLDER, 'g'), '\\n');
 
   try {
-    cachedServiceAccount = JSON.parse(serviceAccountJson);
+    cachedServiceAccount = JSON.parse(serviceAccountJson) as ServiceAccount;
     
     // Validate required fields
-    if (!cachedServiceAccount.project_id || !cachedServiceAccount.private_key || !cachedServiceAccount.client_email) {
+    if (!cachedServiceAccount || !cachedServiceAccount.project_id || !cachedServiceAccount.private_key || !cachedServiceAccount.client_email) {
       throw new Error("Service account JSON is missing required fields (project_id, private_key, or client_email)");
     }
     
-    return cachedServiceAccount!;
+    return cachedServiceAccount;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY:", errorMessage);
