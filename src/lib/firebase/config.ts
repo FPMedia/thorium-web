@@ -28,7 +28,7 @@ if (typeof window !== "undefined") {
 
   if (missingVars.length > 0) {
     console.warn(
-      `Missing Firebase environment variables: ${missingVars.join(", ")}. Please check your .env.local file.`
+      `Missing Firebase environment variables: ${missingVars.join(", ")}. For local development, check your .env.local file. For production (Cloudflare), set these in the dashboard under Settings → Variables and Secrets.`
     );
   }
 }
