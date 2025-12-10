@@ -36,8 +36,8 @@ export function ReadButton({
       dispatch(setLoadingPhase("fetching-manifest"));
     }, 0);
     
-    // Navigate
-    router.push(href);
+    // Navigate - cast to any for Next.js typed routes
+    router.push(href as any);
   };
 
   const baseClasses = "inline-flex items-center justify-center px-5 py-2 font-medium rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-sm sm:text-base disabled:opacity-60 disabled:cursor-not-allowed";
