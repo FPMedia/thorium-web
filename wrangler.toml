@@ -1,9 +1,0 @@
-name = "thorium-web"
-main = ".open-next/worker.js"
-compatibility_flags = [ "nodejs_compat" ]
-compatibility_date = "2024-09-23"
-pages_build_output_dir = ".vercel/output/static"
-
-[[r2_buckets]]
-binding = "NEXT_INC_CACHE_R2_BUCKET"
-bucket_name = "thorium-web-cache"
