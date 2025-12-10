@@ -21,16 +21,50 @@ function getServiceAccount(): ServiceAccount {
     return cachedServiceAccount;
   }
 
-  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+  let serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
   if (!serviceAccountJson) {
     throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set");
   }
 
+  // Handle cases where the JSON might be wrapped in quotes or double-encoded
+  // Remove surrounding quotes if present
+  serviceAccountJson = serviceAccountJson.trim();
+  if (serviceAccountJson.startsWith('"') && serviceAccountJson.endsWith('"')) {
+    serviceAccountJson = serviceAccountJson.slice(1, -1);
+    // Unescape any escaped quotes
+    serviceAccountJson = serviceAccountJson.replace(/\\"/g, '"');
+  }
+
+  // Fix newline characters in the JSON string
+  // JSON doesn't allow unescaped control characters like newlines
+  // Environment variables might contain literal newlines that need to be escaped
+  // Strategy: temporarily replace already-escaped newlines, escape actual newlines, then restore
+  // This prevents double-escaping of already-escaped sequences
+  const ESCAPED_NEWLINE_PLACEHOLDER = '___ESCAPED_NEWLINE___';
+  serviceAccountJson = serviceAccountJson
+    // First, protect already-escaped newlines
+    .replace(/\\n/g, ESCAPED_NEWLINE_PLACEHOLDER)
+    // Then escape actual newline characters
+    .replace(/\r\n/g, '\\n')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\n')
+    // Finally, restore the already-escaped ones
+    .replace(new RegExp(ESCAPED_NEWLINE_PLACEHOLDER, 'g'), '\\n');
+
   try {
     cachedServiceAccount = JSON.parse(serviceAccountJson);
+    
+    // Validate required fields
+    if (!cachedServiceAccount.project_id || !cachedServiceAccount.private_key || !cachedServiceAccount.client_email) {
+      throw new Error("Service account JSON is missing required fields (project_id, private_key, or client_email)");
+    }
+    
     return cachedServiceAccount!;
   } catch (error) {
-    throw new Error("Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY as JSON");
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY:", errorMessage);
+    console.error("First 100 chars of key:", serviceAccountJson.substring(0, 100));
+    throw new Error(`Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY as JSON: ${errorMessage}`);
   }
 }
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyITNSignature } from "@/lib/payfast/payfast";
-import { createPurchaseServer, getPurchaseByIdServer } from "@/lib/firebase/purchases-server";
+import { createPurchaseServer, getPurchaseByIdServer, updatePurchaseStatusServer } from "@/lib/firebase/purchases-server";
 import { getBookById } from "@/config/books";
 
 /**
@@ -88,16 +88,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if purchase already exists (PayFast may send multiple ITN callbacks)
-    const existingPurchase = await getPurchaseByIdServer(paymentId);
-    
-    if (existingPurchase) {
-      // Purchase already exists - this is a duplicate ITN callback
-      // PayFast may send multiple callbacks, so we just acknowledge it
-      console.log("Purchase already exists, acknowledging duplicate ITN callback:", paymentId);
-      return new NextResponse("OK", { status: 200 });
-    }
-
     // Determine purchase status based on Payfast payment status
     let purchaseStatus: "completed" | "pending" | "refunded" | "failed";
     
@@ -115,6 +105,25 @@ export async function POST(request: NextRequest) {
       default:
         console.warn("Unknown payment status:", paymentStatus);
         purchaseStatus = "pending";
+    }
+
+    // Check if purchase already exists (PayFast may send multiple ITN callbacks)
+    const existingPurchase = await getPurchaseByIdServer(paymentId);
+    
+    if (existingPurchase) {
+      // Purchase already exists - update its status based on the latest payment status
+      // PayFast may send multiple callbacks with status updates (e.g., PENDING -> COMPLETE)
+      const currentStatus = existingPurchase.status;
+      
+      if (currentStatus !== purchaseStatus) {
+        console.log(`Updating purchase status from ${currentStatus} to ${purchaseStatus} for purchase:`, paymentId);
+        await updatePurchaseStatusServer(paymentId, purchaseStatus, pfPaymentId || undefined);
+        console.log("Purchase status updated successfully:", paymentId);
+      } else {
+        console.log("Purchase status unchanged, acknowledging duplicate ITN callback:", paymentId);
+      }
+      
+      return new NextResponse("OK", { status: 200 });
     }
 
     // Create purchase record in Firestore (only on ITN callback)
