@@ -1,4 +1,4 @@
-name = "thorium-web"
+name = "publications-nicole-barlow-thorium-web"
 main = ".open-next/worker.js"
 compatibility_flags = [ "nodejs_compat" ]
 compatibility_date = "2024-09-23"
