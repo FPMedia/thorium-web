@@ -146,7 +146,14 @@ export async function POST(request: NextRequest) {
     // Payfast expects "OK" response
     return new NextResponse("OK", { status: 200 });
   } catch (error) {
-    console.error("Error processing ITN:", error);
+    // Enhanced error logging for debugging
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    console.error("Error processing ITN:", {
+      message: errorMessage,
+      stack: errorStack,
+      error: error,
+    });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

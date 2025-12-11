@@ -193,7 +193,7 @@ export function Navigation() {
           isMenuOpen
             ? "opacity-0 -translate-y-4"
             : isScrolled && scrollDirection === "down"
-            ? "opacity-90 scale-95"
+            ? "opacity-0 pointer-events-none"
             : "opacity-100 scale-100"
         }`}
       >
@@ -208,6 +208,35 @@ export function Navigation() {
           />
         </Link>
       </div>
+
+      {/* User Email or Guest Links - Top Right (to the left of menu button) */}
+      {!authLoading && (
+        <>
+          {user && user.email ? (
+            <div className="fixed top-4 right-20 sm:right-[88px] z-50 bg-white/95 backdrop-blur-sm px-3 py-2 rounded-lg shadow-lg flex items-center transition-all duration-300">
+              <span className="text-sm sm:text-base text-gray-700 font-medium whitespace-nowrap">
+                {user.email}
+              </span>
+            </div>
+          ) : (
+            <div className="fixed top-4 right-20 sm:right-[88px] z-50 bg-white/95 backdrop-blur-sm px-2 py-2 rounded-lg shadow-lg flex items-center gap-2 transition-all duration-300">
+              <Link
+                href="/login"
+                className="text-sm sm:text-base text-gray-700 font-medium hover:text-cyan-600 transition-colors duration-200 whitespace-nowrap px-2"
+              >
+                Sign In
+              </Link>
+              <span className="text-gray-300">|</span>
+              <Link
+                href="/signup"
+                className="text-sm sm:text-base text-gray-700 font-medium hover:text-cyan-600 transition-colors duration-200 whitespace-nowrap px-2"
+              >
+                Register
+              </Link>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Menu Toggle Button - Top Right */}
       <button
