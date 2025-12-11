@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { defaultPlatformModifier, UnstablePlatformModifier } from "@/core/Helpers/keyboardUtilities";
 import { ThSettingsContainerKeys, ThLayoutDirection } from "@/preferences/models/enums";
@@ -62,7 +62,7 @@ export const readerSlice = createSlice({
     setLoadingProgress: (state, action) => {
       state.loadingProgress = action.payload
     },
-    setLoadingPhase: (state, action) => {
+    setLoadingPhase: (state, action: PayloadAction<LoadingPhase>) => {
       state.loadingPhase = action.payload
       // Auto-update progress based on phase
       const phaseProgress: Record<LoadingPhase, number> = {
