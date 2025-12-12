@@ -247,7 +247,10 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       ...propsToCSSVars(preferences.theming.icon, "icon"),
       ...propsToCSSVars(preferences.theming.layout, "layout")
     },
-    onBreakpointChange: (breakpoint) => dispatch(setBreakpoint(breakpoint)),
+    onBreakpointChange: (breakpoint) => {
+      console.log("[StatefulReader] Breakpoint initialized:", breakpoint);
+      dispatch(setBreakpoint(breakpoint));
+    },
     onColorSchemeChange: (colorScheme) => dispatch(setColorScheme(colorScheme)),
     onContrastChange: (contrast) => dispatch(setContrast(contrast)),
     onForcedColorsChange: (forcedColors) => dispatch(setForcedColors(forcedColors)),
@@ -495,8 +498,9 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
 
   const listeners: EpubNavigatorListeners = {
     frameLoaded: async function (_wnd: Window): Promise<void> {
+      console.log("[StatefulReader] Frame loaded successfully");
       await initReadingEnv();
-      // Warning: this is using navigator’s internal methods that will become private, do not rely on them
+      // Warning: this is using navigator's internal methods that will become private, do not rely on them
       // See https://github.com/edrlab/thorium-web/issues/25
       const _cframes = getCframes();
       _cframes?.forEach(
@@ -507,6 +511,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       p.observe(window);
     },
     positionChanged: async function (locator: Locator): Promise<void> {
+      console.log("[StatefulReader] Position changed:", locator.href);
       if (navLayout() !== Layout.fixed) {
         const debouncedHandleProgression = debounce(
           async () => {
@@ -730,10 +735,15 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     const manifest = Manifest.deserialize(rawManifest)!;
     manifest.setSelfLink(selfHref);
 
-    setPublication(new Publication({
+    const publication = new Publication({
       manifest: manifest,
       fetcher: fetcher
-    }));
+    });
+
+    console.log("[StatefulReader] Publication created with selfHref:", selfHref);
+    console.log("[StatefulReader] Publication metadata - Layout:", publication.metadata.effectiveLayout === Layout.fixed ? "FXL" : "Reflow", ", ReadingProgression:", publication.metadata.effectiveReadingProgression === ReadingProgression.rtl ? "rtl" : "ltr");
+
+    setPublication(publication);
 
     dispatch(setReaderProfile("epub"));
   }, [rawManifest, selfHref, dispatch]);
@@ -755,13 +765,17 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     const fetchPositions = async () => {
       positionsList = await publication.positionsFromManifest();
       const deserializedPositionsList = deserializePositions(positionsList);
+      console.log("[StatefulReader] Positions fetched:", deserializedPositionsList?.length || 0, "positions");
       dispatch(setPositionsList(deserializedPositionsList));
     };
 
     fetchPositions()
-      .catch(console.error)
+      .catch((error) => {
+        console.error("[StatefulReader] Error fetching positions:", error);
+      })
       .then(() => {
         // Set phase to initializing navigator
+        console.log("[StatefulReader] Starting EpubNavigatorLoad...");
         dispatch(setLoadingPhase("initializing-navigator"));
         const isFXL = publication.metadata.effectiveLayout === Layout.fixed;
 
@@ -834,7 +848,10 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
           initialPosition: initialPosition ? new Locator(initialPosition) : undefined,
           preferences: epubPreferences,
           defaults: defaults
-        }, () => p.observe(window));
+        }, () => {
+          console.log("[StatefulReader] EpubNavigatorLoad completed");
+          p.observe(window);
+        });
       })
       .finally(() => {
         const setLoadingThunk = (dispatch: AppDispatch) => {
@@ -852,7 +869,14 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
   // If breakpoint is not defined, we are not ready to render
   // since useDocking needs it to derive the sheet type
   // Same for arrows and collapsible actions.
-  if (!breakpoint) return null;
+  console.log("[StatefulReader] Breakpoint check:", breakpoint);
+  
+  if (!breakpoint) {
+    console.log("[StatefulReader] Returning null - breakpoint not initialized (waiting for breakpoint...)");
+    return null;
+  }
+
+  console.log("[StatefulReader] Rendering reader UI (breakpoint:", breakpoint, ", publication:", !!publication, ", container:", !!container.current, ")");
 
   return (
     <>

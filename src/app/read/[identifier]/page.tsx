@@ -53,9 +53,17 @@ export default function BookPage({ params }: Props) {
   const { error, manifest, selfLink } = usePublication({
     url: manifestUrl,
     onError: (error) => {
-      console.error("Publication loading error:", error);
+      console.error("[BookPage] Publication loading error:", error);
     }
   });
+
+  // Log render state for debugging
+  useEffect(() => {
+    console.log("[BookPage] Render state - error:", error || "none", ", loading:", isLoading, ", manifest:", !!manifest, ", selfLink:", !!selfLink);
+    if (manifest && selfLink) {
+      console.log("[BookPage] Manifest and selfLink ready - rendering StatefulReader");
+    }
+  }, [error, isLoading, manifest, selfLink]);
 
   // Check ownership if bookId exists (purchasable book)
   if (bookId && !authLoading && !ownershipLoading && user) {
@@ -88,6 +96,10 @@ export default function BookPage({ params }: Props) {
         <p>{ domainError }</p>
       </div>
     );
+  }
+
+  if (error) {
+    console.log("[BookPage] Showing error:", error);
   }
 
   return (
