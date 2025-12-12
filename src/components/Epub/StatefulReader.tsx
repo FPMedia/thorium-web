@@ -851,6 +851,13 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         }, () => {
           console.log("[StatefulReader] EpubNavigatorLoad completed");
           p.observe(window);
+          // Auto-enter fullscreen when book loads
+          if (document.fullscreenEnabled && !document.fullscreenElement) {
+            // Small delay to ensure UI is ready
+            setTimeout(() => {
+              fs.handleFullscreen();
+            }, 100);
+          }
         });
       })
       .finally(() => {
