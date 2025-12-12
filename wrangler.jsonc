@@ -22,17 +22,7 @@
       "service": "thorium-web"
     }
   ],
-  "vars": {
-    // Payfast configuration
-    // Set these values in your Cloudflare dashboard under Settings → Variables and Secrets
-    "PAYFAST_MERCHANT_ID": "10036769",
-    "PAYFAST_MERCHANT_KEY": "or0bp1xobul4s",
-    "PAYFAST_MODE": "sandbox",
-    // Firebase service account key - declared here so it's available to process.env
-    // The actual value should be set as a SECRET in Cloudflare Dashboard
-    // The secret value will override this placeholder at runtime
-    "FIREBASE_SERVICE_ACCOUNT_KEY": ""
-  },
+  
   "r2_buckets": [
     // Create a R2 binding with the binding name "NEXT_INC_CACHE_R2_BUCKET"
     // Uncomment and set bucket_name when you've created the R2 bucket in Cloudflare
