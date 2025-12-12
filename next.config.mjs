@@ -18,6 +18,16 @@ const nextConfig = {
   },
   // Configure asset prefix for CDN or subdirectory support
   assetPrefix: process.env.ASSET_PREFIX || undefined,
+  // Allow loading dev assets from exposed tunnels (e.g., ngrok) so mobile devices
+  // can fetch /_next/* chunks without being blocked by the dev origin check.
+  allowedDevOrigins: (
+    process.env.ALLOWED_DEV_ORIGINS
+      ? process.env.ALLOWED_DEV_ORIGINS.split(",").map(origin => origin.trim()).filter(Boolean)
+      : [
+          "https://calm-frequently-griffon.ngrok-free.app",
+          "https://iffon.ngrok-free.app",
+        ]
+  ),
   webpack(config) {
     const fileLoaderRule = config.module.rules.find((rule) =>
       rule.test?.test?.(".svg"),
