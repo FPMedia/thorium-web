@@ -331,7 +331,7 @@ export default function Home() {
             to holding power accountable.
           </p>
           <a
-            href="https://nicolebarlow.co.za"
+            href="https://www.nicole-barlow.com/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-500 text-white font-medium rounded-full hover:bg-cyan-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 cursor-pointer"
