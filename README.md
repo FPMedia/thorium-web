@@ -62,6 +62,8 @@ You can use the StatefulReader component to use the same exact Reader component 
 
 You can customize this project extensively through [Preferences](./src/preferences.ts): breakpoints, which and how to display actions, themes provided to users, configuration of the docking system, sizes and offsets of icons, etc.
 
+The tab/app favicon is the same NB mark used on [nicole-barlow.com](https://www.nicole-barlow.com/). Replace `src/app/favicon.ico`, `src/app/apple-icon.png`, and the copies in `public/` (`favicon.ico`, `apple-touch-icon.png`, `android-chrome-192x192.png`, `android-chrome-512x512.png`) together if the brand icon changes.
+
 See [Customization in docs](./docs/customization/Customization.md) for further details.
 
 ## Building and Deploying

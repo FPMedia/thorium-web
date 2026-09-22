@@ -18,6 +18,12 @@ For direction to work properly, the `locale` has to be set as well, since React 
 
 ## Metadata
 
+### Favicon
+
+The publications app uses the same favicon set as [nicole-barlow.com](https://www.nicole-barlow.com/): `favicon.ico` (browser tab), `apple-touch-icon.png` (iOS), and `android-chrome-192x192.png` / `android-chrome-512x512.png` (high-resolution / Android).
+
+Next.js also picks up file-based icons from `src/app/favicon.ico` and `src/app/apple-icon.png`. Keep those in sync with the `public/` copies. Root layout `metadata.icons` points at the public files so every route exposes the same links.
+
 ### Document Title
 
 The `documentTitle` preference allows you to configure the document title of the reader. It accepts the following properties:
