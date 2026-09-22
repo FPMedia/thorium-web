@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, ReactNode } from "react";
-import { onIdTokenChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as firebaseSignOut } from "firebase/auth";
+import { User, onIdTokenChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as firebaseSignOut } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { AuthContext } from "./AuthContext";
 import { clearSessionCookie, persistSessionCookie } from "./sessionCookie";
