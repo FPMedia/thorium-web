@@ -28,7 +28,7 @@ By the end of this guide, you'll have a solid understanding of how to implement 
 
 Thorium Web uses [Next.js](https://nextjs.org/), a popular open-source React-based framework for building server-side rendered (SSR) and statically generated websites and applications. It is written in TypeScript.
 
-- **Deployment:** Nicole Barlow Publications is a Next.js app on **Cloudflare Workers** via OpenNext. Production is Worker `thorium-web` from git branch `main`. Staging is Worker `thorium-web-staging`. See [CLOUDFLARE_SETUP.md](../CLOUDFLARE_SETUP.md).
+- **Deployment:** Nicole Barlow Publications is a Next.js app on **Cloudflare Workers** via OpenNext. Production is Worker `thorium-web` from git branch `develop`. Staging is Worker `thorium-web-staging`. See [CLOUDFLARE_SETUP.md](../CLOUDFLARE_SETUP.md).
 - **Components:** Thorium Web UI is built using React Aria for its components. 
 - **Navigator:** Thorium Web implements navigators that are responsible for displaying and navigating publications. These navigators are client-only and part of [Readium TS-Toolkit](https://github.com/readium/ts-toolkit). Styling of EPUB publications is done through [Readium CSS](https://github.com/readium/readium-css).
 - **Publication Manifest:** Thorium Web relies on the [Readium Web Publication Manifest](https://readium.org/webpub-manifest/). The Readium Web Publication Manifest is a JSON-based document meant to represent and distribute publications over HTTPS. It is the primary exchange format used in the [Readium Architecture](https://readium.org/architecture/).

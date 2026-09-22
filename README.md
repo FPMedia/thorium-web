@@ -66,7 +66,7 @@ See [Customization in docs](./docs/customization/Customization.md) for further d
 
 ## Building and Deploying
 
-The app runs on **Cloudflare Workers** (OpenNext), not Pages. Production deploys from **`main`**.
+The app runs on **Cloudflare Workers** (OpenNext), not Pages. Production deploys from **`develop`**.
 
 ```bash
 pnpm build
@@ -75,7 +75,7 @@ pnpm deploy
 
 `pnpm deploy` builds Next.js, adapts it with OpenNext, and deploys Worker `thorium-web`. Use `pnpm deploy:staging` for Worker `thorium-web-staging`.
 
-Recommended CD is Cloudflare **Workers Builds** on `main` (production) and `staging` (previews). GitHub Actions runs lint and typecheck. See [CLOUDFLARE_SETUP.md](./CLOUDFLARE_SETUP.md).
+Recommended CD is Cloudflare **Workers Builds** on `develop` (production) and `staging` (previews). GitHub Actions runs lint and typecheck. See [CLOUDFLARE_SETUP.md](./CLOUDFLARE_SETUP.md).
 
 Surrounding infrastructure:
 

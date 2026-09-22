@@ -4,7 +4,7 @@ This app is a Next.js 15 App Router project deployed to **Cloudflare Workers** v
 
 | Worker | Git branch | R2 cache | Role |
 |--------|------------|----------|------|
-| `thorium-web` | `main` | `thorium-web-cache` | Production |
+| `thorium-web` | `develop` | `thorium-web-cache` | Production |
 | `thorium-web-staging` | `staging` | `thorium-web-cache-staging` | Staging + PR previews |
 
 Books are gated by **Firebase Auth** (`/read/*` requires a session cookie). There is no payment or purchase check.
@@ -44,7 +44,7 @@ See [docs/EnvironmentVariables.md](docs/EnvironmentVariables.md).
 
 ## Workers Builds (recommended CD)
 
-Reconnect git on Worker `thorium-web` (it was used previously on `develop`, then stopped). Use **`main` as the production branch**.
+Git is connected on Worker `thorium-web` (`FPMedia/thorium-web`). Production branch is **`develop`** (the repository default).
 
 Package manager: **pnpm**. Node: **22** ([`.nvmrc`](.nvmrc)). Root: repository root.
 
@@ -52,10 +52,10 @@ Package manager: **pnpm**. Node: **22** ([`.nvmrc`](.nvmrc)). Root: repository r
 
 | Setting | Value |
 |---------|--------|
-| Production branch | `main` |
+| Production branch | `develop` |
 | Non-production branch builds | Off |
-| Build command | `npx @opennextjs/cloudflare build` |
-| Deploy command | `npx @opennextjs/cloudflare deploy -- --keep-vars` |
+| Build command | `pnpm run build` |
+| Deploy command | `npx wrangler deploy --keep-vars` |
 
 ### Staging Worker `thorium-web-staging`
 
@@ -65,15 +65,15 @@ Create the Worker if it does not exist, then connect the same repository.
 |---------|--------|
 | Production branch | `staging` |
 | Non-production branch builds | On (PR preview URLs) |
-| Build command | `npx @opennextjs/cloudflare build` |
-| Deploy command | `npx @opennextjs/cloudflare deploy -- --env staging --keep-vars` |
-| Non-prod / preview command | `npx @opennextjs/cloudflare upload -- --env staging --keep-vars` |
+| Build command | `pnpm run build` |
+| Deploy command | `npx wrangler deploy --env staging --keep-vars` |
+| Non-prod / preview command | `npx wrangler versions upload --env staging --keep-vars` |
 
 Duplicate the Firebase **build** variables on the staging build config.
 
 ## GitHub Actions (CI)
 
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs `pnpm lint` and `pnpm typecheck` on pull requests and pushes to `main`. Protect `main` so it cannot merge with a red CI check. Workers Builds does not wait for GitHub Actions.
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs `pnpm lint` and `pnpm typecheck` on pull requests and pushes to `develop`. Protect `develop` so it cannot merge with a red CI check. Workers Builds does not wait for GitHub Actions.
 
 ## Manual / emergency CLI
 
