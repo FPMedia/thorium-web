@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+function isPrefetchRequest(request: NextRequest): boolean {
+  return (
+    request.headers.get("Next-Router-Prefetch") === "1" ||
+    request.headers.get("x-middleware-prefetch") === "1" ||
+    request.headers.get("Purpose") === "prefetch"
+  );
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -11,14 +19,20 @@ export function middleware(request: NextRequest) {
 
   // Protect /read/* routes
   if (pathname.startsWith("/read/")) {
-    // Check for auth token in cookies
     const authToken = request.cookies.get("__session");
 
-    // If no auth token, redirect to login with the original URL as redirect parameter
-    if (!authToken) {
+    if (!authToken?.value) {
+      // Prefetching a protected route must not cache a login redirect.
+      // Otherwise clicking "Read" after sign-in replays the cached /login navigation.
+      if (isPrefetchRequest(request)) {
+        return new NextResponse(null, { status: 204 });
+      }
+
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
+      const response = NextResponse.redirect(loginUrl);
+      response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+      return response;
     }
   }
 
@@ -38,4 +52,3 @@ export const config = {
     "/((?!api|_next/static|_next/image|favicon.ico|images|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
-

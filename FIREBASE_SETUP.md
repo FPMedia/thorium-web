@@ -48,15 +48,18 @@ pnpm dev
 
 - **Public Routes**: The home page (`/`) and authentication pages (`/login`, `/signup`) are publicly accessible
 - **Protected Routes**: All routes under `/read/*` require authentication
+- **Session cookie**: After sign-in, the Firebase ID token is stored in a `__session` cookie (HttpOnly via `POST /api/auth/session`, with a client cookie fallback). Middleware checks this cookie before serving `/read/*`. The cookie is written **before** the UI treats the user as logged in, so opening a book does not bounce back to login.
 - **Authentication Flow**:
-  1. Unauthenticated users trying to access `/read/*` are redirected to `/login`
-  2. After successful login, users are redirected back to their originally requested route
-  3. Authentication state is persisted across page refreshes
+  1. Unauthenticated users trying to access `/read/*` are redirected to `/login?redirect=...`
+  2. Sign-in waits until the session cookie is saved, then continues to the requested route
+  3. Already-signed-in users who hit `/login` or `/signup` are sent onward instead of seeing the form again
+  4. Prefetches of `/read/*` without a session return `204` so Next.js does not cache a login redirect
+  5. Authentication state is persisted across page refreshes; token refresh keeps the session cookie in sync
 
 ## Usage
 
 Users can:
 - Sign up for a new account at `/signup`
 - Sign in to an existing account at `/login`
-- Access protected reading routes after authentication
+- Access protected reading routes after authentication (one sign-in per session)
 

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { safeRedirectPath } from "@/lib/auth/safeRedirect";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -11,10 +12,15 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signUp } = useAuth();
-  const router = useRouter();
+  const { signUp, user, loading: authLoading } = useAuth();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/";
+  const redirectTo = safeRedirectPath(searchParams.get("redirect"));
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      window.location.assign(redirectTo);
+    }
+  }, [authLoading, user, redirectTo]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,13 +40,23 @@ export default function SignupPage() {
 
     try {
       await signUp(email, password);
-      router.push(redirectTo as any);
+      window.location.assign(redirectTo);
     } catch (err: any) {
       setError(err.message || "Failed to create account. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
+
+  if (authLoading || user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600"></div>
+          <p className="mt-4 text-gray-600">{user ? "Continuing..." : "Loading..."}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">

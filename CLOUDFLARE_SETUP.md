@@ -7,7 +7,7 @@ This app is a Next.js 15 App Router project deployed to **Cloudflare Workers** v
 | `thorium-web` | `develop` | `thorium-web-cache` | Production |
 | `thorium-web-staging` | `staging` | `thorium-web-cache-staging` | Staging + PR previews |
 
-Books are gated by **Firebase Auth** (`/read/*` requires a session cookie). There is no payment or purchase check.
+Books are gated by **Firebase Auth**. Middleware requires a `__session` cookie on `/read/*`. After sign-in, `POST /api/auth/session` stores a verified ID token as an HttpOnly cookie (the client also writes a fallback cookie so navigation is not blocked if that request fails). There is no payment or purchase check.
 
 ## Environment variables
 
