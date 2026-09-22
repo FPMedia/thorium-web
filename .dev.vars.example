@@ -1,0 +1,3 @@
+# Used by `opennextjs-cloudflare preview` / `wrangler dev` so Next.js
+# development env files are loaded. Do not put app secrets here.
+NEXTJS_ENV=development

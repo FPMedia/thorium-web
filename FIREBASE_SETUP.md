@@ -1,6 +1,6 @@
 # Firebase Authentication Setup
 
-This project uses Firebase Authentication to protect the `/read/*` routes.
+This project uses Firebase Authentication to protect the `/read/*` routes. Any registered, signed-in user can read every book. There is no purchase step.
 
 ## Setup Instructions
 
@@ -23,7 +23,7 @@ This project uses Firebase Authentication to protect the `/read/*` routes.
 
 ### 3. Set Environment Variables
 
-Create a `.env.local` file in the project root with the following variables:
+Create a `.env.local` file in the project root (see [`.env.example`](.env.example)) with the following variables:
 
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key-here

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { PurchaseButton } from "./PurchaseButton";
+import { ReadButton } from "./ReadButton";
 import { useAuth } from "@/lib/auth/AuthContext";
 
 interface BookCardProps {
@@ -11,7 +11,6 @@ interface BookCardProps {
   cover: string;
   url: string;
   description?: string;
-  bookId?: string;
   imagePosition?: "left" | "right";
 }
 
@@ -21,7 +20,6 @@ export function BookCard({
   cover,
   url,
   description,
-  bookId,
   imagePosition = "left",
 }: BookCardProps) {
   const { user } = useAuth();
@@ -50,33 +48,32 @@ export function BookCard({
             <p className="text-gray-500 text-base sm:text-lg lg:text-xl leading-relaxed sm:leading-loose">{description}</p>
           )}
         </Link>
-        {bookId && (
-          <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200">
-            {user ? (
-              <PurchaseButton bookId={bookId} className="w-full sm:w-auto" />
-            ) : (
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <p className="text-sm sm:text-base text-gray-700 mb-2 sm:mb-0 sm:mr-2">
-                  To purchase this book:
-                </p>
-                <Link
-                  href="/signup"
-                  className="inline-flex items-center justify-center px-6 py-3 bg-cyan-600 text-white font-medium rounded-full hover:bg-cyan-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 cursor-pointer text-sm sm:text-base"
-                >
-                  Sign Up
-                </Link>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center px-6 py-3 border-2 border-cyan-600 text-cyan-600 font-medium rounded-full hover:bg-cyan-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 cursor-pointer text-sm sm:text-base"
-                >
-                  Sign In
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200">
+          {user ? (
+            <ReadButton href={url} className="w-full sm:w-auto">
+              Read {title}
+            </ReadButton>
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
+              <p className="text-sm sm:text-base text-gray-700">
+                Sign in to read this book:
+              </p>
+              <Link
+                href="/signup"
+                className="inline-flex items-center justify-center px-6 py-3 bg-cyan-600 text-white font-medium rounded-full hover:bg-cyan-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 cursor-pointer text-sm sm:text-base"
+              >
+                Sign Up
+              </Link>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center px-6 py-3 border-2 border-cyan-600 text-cyan-600 font-medium rounded-full hover:bg-cyan-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 cursor-pointer text-sm sm:text-base"
+              >
+                Sign In
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
-

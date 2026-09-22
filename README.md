@@ -66,28 +66,25 @@ See [Customization in docs](./docs/customization/Customization.md) for further d
 
 ## Building and Deploying
 
-To build and deploy Thorium Web, run the following commands:
+The app runs on **Cloudflare Workers** (OpenNext), not Pages. Production deploys from **`main`**.
 
 ```bash
 pnpm build
-pnpm run deploy
+pnpm deploy
 ```
 
-This will create a production-ready build of the reader and deploy it to the specified hosting platform.
+`pnpm deploy` builds Next.js, adapts it with OpenNext, and deploys Worker `thorium-web`. Use `pnpm deploy:staging` for Worker `thorium-web-staging`.
 
-This repository is using the following configuration:
+Recommended CD is Cloudflare **Workers Builds** on `main` (production) and `staging` (previews). GitHub Actions runs lint and typecheck. See [CLOUDFLARE_SETUP.md](./CLOUDFLARE_SETUP.md).
+
+Surrounding infrastructure:
 
 - Go-Toolkit on Google Cloud Run
-- Thorium Web App on CloudFlare Pages
-- Assets e.g. demo EPUBs stored on Google Cloud Storage
+- Thorium Web on Cloudflare Workers
+- Publication assets on Google Cloud Storage
 
-To deploy, the following script is run: 
+Reading `/read/*` requires a registered, signed-in Firebase user. There is no paywall.
 
-```bash
-pnpm run deploy
-```
-
-Which runs `opennextjs-cloudflare build && opennextjs-cloudflare deploy`. It's running with defaults, which means a commit triggers a build and deploy for the current branch to preview. You can then access the app from a subdomain using this branch name.
 
 ## Known Issues
 

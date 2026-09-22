@@ -11,7 +11,7 @@ This guide explains how to use Thorium Web with a local Readium CLI server for d
 
 ### Environment Variables
 
-The `.env.local` file has been configured with:
+The `.env.local` file should include (see [`.env.example`](../.env.example)):
 
 ```bash
 MANIFEST_ALLOWED_DOMAINS=localhost

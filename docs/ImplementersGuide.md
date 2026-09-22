@@ -28,7 +28,7 @@ By the end of this guide, you'll have a solid understanding of how to implement 
 
 Thorium Web uses [Next.js](https://nextjs.org/), a popular open-source React-based framework for building server-side rendered (SSR) and statically generated websites and applications. It is written in TypeScript.
 
-- **Deployment:** Thorium Web is deployed on Cloudflare Pages. The repository is simply linked and works out of the box. Alternative deployment options include Vercel.
+- **Deployment:** Nicole Barlow Publications is a Next.js app on **Cloudflare Workers** via OpenNext. Production is Worker `thorium-web` from git branch `main`. Staging is Worker `thorium-web-staging`. See [CLOUDFLARE_SETUP.md](../CLOUDFLARE_SETUP.md).
 - **Components:** Thorium Web UI is built using React Aria for its components. 
 - **Navigator:** Thorium Web implements navigators that are responsible for displaying and navigating publications. These navigators are client-only and part of [Readium TS-Toolkit](https://github.com/readium/ts-toolkit). Styling of EPUB publications is done through [Readium CSS](https://github.com/readium/readium-css).
 - **Publication Manifest:** Thorium Web relies on the [Readium Web Publication Manifest](https://readium.org/webpub-manifest/). The Readium Web Publication Manifest is a JSON-based document meant to represent and distribute publications over HTTPS. It is the primary exchange format used in the [Readium Architecture](https://readium.org/architecture/).
@@ -43,7 +43,7 @@ Here's a high-level system diagram showing the relationships between the compone
 ```
 +---------------+
 |  Cloudflare   |
-|  Pages (CDN)  |
+|  Workers      |
 +---------------+
        |
        |
@@ -118,20 +118,21 @@ Thorium Web exposes a `StatefulReader` component with EPUB Support that is worki
 Thorium Web follows the [Readium Architecture](https://readium.org/architecture/). To get started with the implementation of Thorium Web, we need to set up a few things first:
 
 - **Server with publications:** We need a server that can store and serve publications with a Readium Web Publication Manifest and a Positions List. The resources of the publication must be fetchable separately. This can be a simple file server or a more complex system like Google Cloud Storage.
-- **Deployment platform for Next.js app:** We need a platform to deploy the Next.js app to. This can be Cloudflare Pages, Vercel, or another platform that supports Next.js deployments. [See Next.js documentation for more information](https://nextjs.org/docs/app/building-your-application/deploying).
+- **Deployment platform for Next.js app:** This fork deploys to Cloudflare Workers with OpenNext. Alternative options include Vercel. [See Next.js documentation](https://nextjs.org/docs/app/building-your-application/deploying).
+- **Authentication:** `/read/*` requires a registered, signed-in Firebase user. There is no purchase or payment step.
 
 The application supports two main routes for accessing publications:
 
 - `/read/[identifier]` - For accessing publications by their identifier (the list of publications is defined in `src/config/publications.ts`)
 - `/read/manifest/[manifest]` - For accessing publications via their manifest URL (must be URL-encoded). Note: This route is disabled in production by default for security reasons.
 
-Manifest URLs are validated against the allowed domains configured in `.env`. You can configure the allowed domains by setting `MANIFEST_ALLOWED_DOMAINS` in your environment variables.
+Manifest URLs are validated against the allowed domains configured in `.env.local` (local) or Worker runtime vars (Cloudflare). You can configure the allowed domains by setting `MANIFEST_ALLOWED_DOMAINS`.
 
 To enable the `read/manifest/[manifest]` route in production, set `MANIFEST_ROUTE_FORCE_ENABLE=true` in your environment variables.
 
 For CDN or subdirectory support, you can set `ASSET_PREFIX` to your CDN URL or subdirectory path (e.g., `https://cdn.example.com` or `/subdirectory`). This will be used as the base path for all static assets.
 
-You can set these environment variables in your `.env` file or directly in bash when running the application.
+You can set these environment variables in `.env.local` (see [`.env.example`](../.env.example)) or in Workers Builds / Worker settings.
 
 For example, if you want to allow all domains, enable the manifest route in production, and use a CDN for assets, you can run:
 
@@ -145,7 +146,7 @@ ASSET_PREFIX="https://cdn.example.com"
 pnpm start
 ```
 
-They should override the values in `.env`.
+They should override the values in `.env.local`.
 
 For more information, see [Environment Variables](./EnvironmentVariables.md).
 

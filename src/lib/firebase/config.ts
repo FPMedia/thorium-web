@@ -1,6 +1,5 @@
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
-import { getFirestore, Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -28,7 +27,7 @@ if (typeof window !== "undefined") {
 
   if (missingVars.length > 0) {
     console.warn(
-      `Missing Firebase environment variables: ${missingVars.join(", ")}. For local development, check your .env.local file. For production (Cloudflare), set these in the dashboard under Settings → Variables and Secrets.`
+      `Missing Firebase environment variables: ${missingVars.join(", ")}. For local development, check your .env.local file. For production, set these as Workers Builds build variables (NEXT_PUBLIC_* are inlined at next build).`
     );
   }
 }
@@ -43,9 +42,6 @@ if (getApps().length === 0) {
 
 // Initialize Firebase Auth
 export const auth: Auth = getAuth(app);
-
-// Initialize Firestore
-export const db: Firestore = getFirestore(app);
 
 export default app;
 

@@ -24,8 +24,6 @@
   ],
   
   "r2_buckets": [
-    // Create a R2 binding with the binding name "NEXT_INC_CACHE_R2_BUCKET"
-    // Uncomment and set bucket_name when you've created the R2 bucket in Cloudflare
     {
       "binding": "NEXT_INC_CACHE_R2_BUCKET",
       "bucket_name": "thorium-web-cache"
@@ -38,6 +36,36 @@
       "invocation_logs": true,
       "persist": true
     }
+  },
+  // Named environments do not inherit bindings. Staging is a separate Worker.
+  // Runtime vars live in the Cloudflare dashboard; deploy with --keep-vars.
+  "env": {
+    "staging": {
+      "name": "thorium-web-staging",
+      "assets": {
+        "directory": ".open-next/assets",
+        "binding": "ASSETS"
+      },
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "thorium-web-staging"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "thorium-web-cache-staging"
+        }
+      ],
+      "observability": {
+        "logs": {
+          "enabled": true,
+          "head_sampling_rate": 1,
+          "invocation_logs": true,
+          "persist": true
+        }
+      }
+    }
   }
 }
-

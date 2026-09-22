@@ -1,18 +1,23 @@
-# Cloudflare Workers Setup Guide
+# Cloudflare Workers Setup
 
-## Required Environment Variables
+This app is a Next.js 15 App Router project deployed to **Cloudflare Workers** via OpenNext (`@opennextjs/cloudflare`). It is not Cloudflare Pages.
 
-### Public Variables (in `wrangler.jsonc`)
+| Worker | Git branch | R2 cache | Role |
+|--------|------------|----------|------|
+| `thorium-web` | `main` | `thorium-web-cache` | Production |
+| `thorium-web-staging` | `staging` | `thorium-web-cache-staging` | Staging + PR previews |
 
-These can be set in `wrangler.jsonc` under the `vars` section:
+Books are gated by **Firebase Auth** (`/read/*` requires a session cookie). There is no payment or purchase check.
 
-- `PAYFAST_MERCHANT_ID`
-- `PAYFAST_MERCHANT_KEY`
-- `PAYFAST_MODE` (sandbox or production)
+## Environment variables
 
-### Public Firebase Variables (build-time)
+`NEXT_PUBLIC_*` values are **inlined at `next build`**. They must exist as Workers Builds **Build variables and secrets**, not only as Worker runtime vars.
 
-These are embedded at build time via Next.js environment variables:
+Runtime vars/secrets are set per Worker in **Settings → Variables and Secrets**. Deploy with `--keep-vars` so Wrangler does not wipe dashboard values.
+
+### Build-time (Workers Builds)
+
+Set on both production and staging build configs:
 
 - `NEXT_PUBLIC_FIREBASE_API_KEY`
 - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
@@ -20,95 +25,68 @@ These are embedded at build time via Next.js environment variables:
 - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
 - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
 - `NEXT_PUBLIC_FIREBASE_APP_ID`
+- `MANIFEST_ROUTE_FORCE_ENABLE` (only if you enable `/read/manifest/*` in production)
+- `ASSET_PREFIX` (optional CDN / subdirectory)
 
-### Secrets (via Cloudflare Dashboard or Wrangler CLI)
+### Runtime (Worker settings)
 
-These should **NOT** be in `wrangler.jsonc` for security reasons. Set them as secrets:
+- `MANIFEST_ALLOWED_DOMAINS` — comma-separated hosts, or `*`
+- `MANIFEST_ROUTE_FORCE_ENABLE` — also needed at runtime if the manifest route is enabled
 
-#### `FIREBASE_SERVICE_ACCOUNT_KEY`
+There are no Worker secrets required after the paywall was removed. Do not put credentials in [`wrangler.jsonc`](wrangler.jsonc).
 
-This is required for server-side Firestore operations (like the ITN endpoint).
+### Local
 
-**To set via Wrangler CLI:**
+1. Copy [`.env.example`](.env.example) to `.env.local` and fill in Firebase client values.
+2. Copy [`.dev.vars.example`](.dev.vars.example) to `.dev.vars` (`NEXTJS_ENV=development`) for `pnpm preview`.
+
+See [docs/EnvironmentVariables.md](docs/EnvironmentVariables.md).
+
+## Workers Builds (recommended CD)
+
+Reconnect git on Worker `thorium-web` (it was used previously on `develop`, then stopped). Use **`main` as the production branch**.
+
+Package manager: **pnpm**. Node: **22** ([`.nvmrc`](.nvmrc)). Root: repository root.
+
+### Production Worker `thorium-web`
+
+| Setting | Value |
+|---------|--------|
+| Production branch | `main` |
+| Non-production branch builds | Off |
+| Build command | `npx @opennextjs/cloudflare build` |
+| Deploy command | `npx @opennextjs/cloudflare deploy -- --keep-vars` |
+
+### Staging Worker `thorium-web-staging`
+
+Create the Worker if it does not exist, then connect the same repository.
+
+| Setting | Value |
+|---------|--------|
+| Production branch | `staging` |
+| Non-production branch builds | On (PR preview URLs) |
+| Build command | `npx @opennextjs/cloudflare build` |
+| Deploy command | `npx @opennextjs/cloudflare deploy -- --env staging --keep-vars` |
+| Non-prod / preview command | `npx @opennextjs/cloudflare upload -- --env staging --keep-vars` |
+
+Duplicate the Firebase **build** variables on the staging build config.
+
+## GitHub Actions (CI)
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs `pnpm lint` and `pnpm typecheck` on pull requests and pushes to `main`. Protect `main` so it cannot merge with a red CI check. Workers Builds does not wait for GitHub Actions.
+
+## Manual / emergency CLI
 
 ```bash
-# Get your Firebase service account JSON file first
-# Then set it as a secret (the entire JSON as a string)
-wrangler secret put FIREBASE_SERVICE_ACCOUNT_KEY
+pnpm deploy            # production Worker, keep dashboard vars
+pnpm deploy:staging    # staging Worker
+pnpm logs              # wrangler tail
 ```
 
-When prompted, paste the entire JSON content from your Firebase service account key file.
+## Viewing logs
 
-**To set via Cloudflare Dashboard:**
-
-1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
-2. Navigate to Workers & Pages → Your Worker (`thorium-web`)
-3. Go to Settings → Variables and Secrets
-4. Under "Secrets", click "Add secret"
-5. Name: `FIREBASE_SERVICE_ACCOUNT_KEY`
-6. Value: Paste the entire JSON content from your Firebase service account key
-
-**Getting the Firebase Service Account Key:**
-
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Select your project
-3. Go to Project Settings (gear icon) → Service Accounts
-4. Click "Generate new private key"
-5. Download the JSON file
-6. Copy the entire JSON content and use it as the secret value
-
-## Troubleshooting ITN 500 Errors
-
-If the ITN endpoint (`/api/payment/itn`) is returning 500 errors, check:
-
-1. **Is `FIREBASE_SERVICE_ACCOUNT_KEY` set?**
-   ```bash
-   # View your secrets (names only, not values)
-   wrangler secret list
-   ```
-
-2. **Check logs for the specific error:**
-   ```bash
-   pnpm logs
-   # Or
-   wrangler tail --format pretty
-   ```
-
-3. **Common errors:**
-   - `FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set` → Secret is missing
-   - `Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY` → JSON is malformed (check for encoding issues)
-   - `Failed to authenticate with Google` → Service account key is invalid or expired
-   - `Failed to create purchase` → Firestore permissions or network issue
-
-## Viewing Logs
-
-### Real-time logs:
 ```bash
 pnpm logs
-# Or
+# or
 wrangler tail --format pretty
-```
-
-### Filter for ITN errors:
-```bash
-wrangler tail --format pretty | grep -i "ITN\|payment/itn\|Error processing ITN"
-```
-
-### JSON format (for parsing):
-```bash
-pnpm logs:json
-```
-
-## Deploying Changes
-
-After setting secrets, you may need to redeploy:
-
-```bash
-pnpm deploy
-```
-
-Or if using the upload command:
-
-```bash
-pnpm upload
 ```
