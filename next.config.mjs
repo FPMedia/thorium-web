@@ -74,4 +74,8 @@ const nextConfig = {
 export default nextConfig;
 
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
-initOpenNextCloudflareForDev();
+// Only start the Cloudflare dev platform (workerd) for `next dev`; otherwise
+// commands like `next typegen`/`next build` leave workerd running and hang CI.
+if (process.argv.includes("dev")) {
+  initOpenNextCloudflareForDev();
+}
