@@ -78,7 +78,7 @@
     "react-stately": "^3.42.0"
   },
   "dependencies": {
-    "@opennextjs/cloudflare": "^1.13.1",
+    "@opennextjs/cloudflare": "^1.20.13",
     "@readium/css": "2.0.0-beta.22",
     "@readium/navigator": "^2.2.4",
     "@readium/navigator-html-injectables": "^2.2.1",
@@ -119,6 +119,6 @@
     "tailwindcss": "^4",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
-    "wrangler": "^4.51.0"
+    "wrangler": "^4.151.3"
   }
 }
